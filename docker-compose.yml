@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  gate:
+    build:
+      context: .
+      args:
+        app: gate
+    command: gate
+    expose:
+      - "5000"
+    ports:
+      - "4000:4000"
+  worker:
+    build:
+      context: .
+      args:
+        app: worker
+    command: worker
+    depends_on:
+     - gate
