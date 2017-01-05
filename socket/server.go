@@ -1,46 +1,34 @@
 package socket
 
-import (
-	"fmt"
-	"net"
+import "net"
 
-	"github.com/jvikstedt/bluemoon/gate"
-)
+type ManageConnFunc func(*net.TCPConn) error
 
 type Server struct {
+	manageConn ManageConnFunc
 }
 
-func NewServer() *Server {
-	return &Server{}
+func NewServer(manageConn ManageConnFunc) *Server {
+	return &Server{
+		manageConn: manageConn,
+	}
 }
 
-func (s *Server) Listen(addr string) error {
+func (s *Server) Listen(addr string) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", addr)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	for {
-		conn, err := listener.Accept()
+		conn, err := listener.AcceptTCP()
 		if err != nil {
 			continue
 		}
-		cw := NewConnectionWrapper(conn)
-		go s.handleSocket(cw)
+		s.manageConn(conn)
 	}
-	return nil
-}
-
-func (s *Server) handleSocket(cw *ConnectionWrapper) {
-	defer cw.Close()
-	worker := gate.NewWorker(1, cw, func(worker *gate.Worker, data []byte) {
-		fmt.Printf("message %s\n", string(data))
-		worker.Write([]byte("pong"))
-	})
-	go worker.EnableReader()
-	worker.EnableWriter()
 }
