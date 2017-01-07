@@ -32,7 +32,9 @@ func main() {
 	}
 	fmt.Printf("Selected protocol: %s\n", protocols[protocolID])
 	var addr string
-	fmt.Printf("Give address (ex: :4000)\n")
+	fmt.Printf("Give address\n")
+	fmt.Printf("Example websocket: ws://localhost:4000/ws\n")
+	fmt.Printf("Example socket: :5000\n")
 	fmt.Scanf("%s", &addr)
 
 	for {

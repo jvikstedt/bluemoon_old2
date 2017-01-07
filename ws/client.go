@@ -10,7 +10,7 @@ func NewClient() *Client {
 }
 
 func (c *Client) Connect(addr string) (*websocket.Conn, error) {
-	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:4000/ws", nil)
+	conn, _, err := websocket.DefaultDialer.Dial(addr, nil)
 	if err != nil {
 		return nil, err
 	}
