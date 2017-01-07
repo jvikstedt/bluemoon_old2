@@ -1,21 +1,16 @@
 package gate
 
-type ReadWriter interface {
-	Write(data []byte)
-	Read() ([]byte, error)
-}
+type HandleUserDataFunc func(user *User, data []byte)
 
-type HandleWorkerDataFunc func(worker *Worker, data []byte)
-
-type Worker struct {
+type User struct {
 	id         int
 	writeCh    chan []byte
 	doneCh     chan bool
 	rw         ReadWriter
-	handleData HandleWorkerDataFunc
+	handleData HandleUserDataFunc
 }
 
-func (c *Worker) EnableWriter() {
+func (c *User) EnableWriter() {
 	for {
 		select {
 		case data := <-c.writeCh:
@@ -26,7 +21,7 @@ func (c *Worker) EnableWriter() {
 	}
 }
 
-func (c *Worker) EnableReader() {
+func (c *User) EnableReader() {
 	for {
 		if data, err := c.rw.Read(); err != nil {
 			break
@@ -37,20 +32,20 @@ func (c *Worker) EnableReader() {
 	c.Close()
 }
 
-func (c *Worker) Write(data []byte) {
+func (c *User) Write(data []byte) {
 	c.writeCh <- data
 }
 
-func (c *Worker) ID() int {
+func (c *User) ID() int {
 	return c.id
 }
 
-func (c *Worker) Close() {
+func (c *User) Close() {
 	c.doneCh <- true
 }
 
-func NewWorker(id int, rw ReadWriter, dh HandleWorkerDataFunc) *Worker {
-	return &Worker{
+func NewUser(id int, rw ReadWriter, dh HandleUserDataFunc) *User {
+	return &User{
 		id:         id,
 		writeCh:    make(chan []byte, 5),
 		doneCh:     make(chan bool, 3),

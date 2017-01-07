@@ -5,8 +5,11 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/gorilla/websocket"
+
 	"github.com/jvikstedt/bluemoon/gate"
 	"github.com/jvikstedt/bluemoon/socket"
+	"github.com/jvikstedt/bluemoon/ws"
 )
 
 func manageConn(conn *net.TCPConn) error {
@@ -23,10 +26,24 @@ func manageConn(conn *net.TCPConn) error {
 	return nil
 }
 
+func manageWSConn(conn *websocket.Conn) error {
+	cw := ws.NewConnectionWrapper(conn)
+
+	w := gate.NewUser(1, cw, func(user *gate.User, data []byte) {
+		fmt.Printf("Got message from user: %s\n", string(data))
+		user.Write([]byte("Pong"))
+	})
+	go w.EnableReader()
+	w.EnableWriter()
+
+	return nil
+}
+
 func main() {
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")
 
-	http.HandleFunc("/", HandleWS)
+	wsServer := ws.NewServer(manageWSConn)
+	http.Handle("/", wsServer)
 	http.ListenAndServe(":4000", nil)
 }

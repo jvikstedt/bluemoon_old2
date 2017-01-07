@@ -29,6 +29,11 @@ func (s *Server) Listen(addr string) {
 		if err != nil {
 			continue
 		}
-		s.manageConn(conn)
+		s.handleConn(conn)
 	}
+}
+
+func (s *Server) handleConn(conn *net.TCPConn) error {
+	defer conn.Close()
+	return s.manageConn(conn)
 }
