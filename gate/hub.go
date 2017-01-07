@@ -8,8 +8,8 @@ import (
 type Hub struct {
 	workers     map[int]*Worker
 	users       map[int]*User
-	workersLock sync.Mutex
-	usersLock   sync.Mutex
+	workersLock sync.RWMutex
+	usersLock   sync.RWMutex
 }
 
 func NewHub() *Hub {
@@ -20,8 +20,8 @@ func NewHub() *Hub {
 }
 
 func (h *Hub) UserByID(id int) (*User, error) {
-	h.usersLock.Lock()
-	defer h.usersLock.Unlock()
+	h.usersLock.RLock()
+	defer h.usersLock.RUnlock()
 
 	if v, ok := h.users[id]; ok {
 		return v, nil
@@ -31,8 +31,8 @@ func (h *Hub) UserByID(id int) (*User, error) {
 }
 
 func (h *Hub) WorkerByID(id int) (*Worker, error) {
-	h.workersLock.Lock()
-	defer h.workersLock.Unlock()
+	h.workersLock.RLock()
+	defer h.workersLock.RUnlock()
 
 	if v, ok := h.workers[id]; ok {
 		return v, nil
