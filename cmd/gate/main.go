@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 
@@ -45,5 +46,5 @@ func main() {
 
 	wsServer := ws.NewServer(manageWSConn)
 	http.Handle("/", wsServer)
-	http.ListenAndServe(":4000", nil)
+	log.Fatal(http.ListenAndServe(":4000", nil))
 }
