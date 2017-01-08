@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -14,15 +13,13 @@ import (
 )
 
 var hub *gate.Hub
+var handler *gate.Handler
 
 func manageConn(conn *net.TCPConn) error {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
 
-	w := gate.NewWorker(1, cw, func(worker *gate.Worker, data []byte) {
-		fmt.Printf("Got message: %s\n", string(data))
-		worker.Write([]byte("Pong"))
-	})
+	w := gate.NewWorker(1, cw, handler.HandleWorkerData)
 	hub.AddWorker(w)
 	defer hub.RemoveWorker(w)
 
@@ -35,10 +32,7 @@ func manageConn(conn *net.TCPConn) error {
 func manageWSConn(conn *websocket.Conn) error {
 	cw := ws.NewConnectionWrapper(conn)
 
-	u := gate.NewUser(1, cw, func(user *gate.User, data []byte) {
-		fmt.Printf("Got message from user: %s\n", string(data))
-		user.Write([]byte("Pong"))
-	})
+	u := gate.NewUser(1, cw, handler.HandleUserData)
 	hub.AddUser(u)
 	defer hub.RemoveUser(u)
 
@@ -50,6 +44,7 @@ func manageWSConn(conn *websocket.Conn) error {
 
 func main() {
 	hub = gate.NewHub()
+	handler = gate.NewHandler(hub)
 
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")
