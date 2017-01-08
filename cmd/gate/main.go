@@ -13,6 +13,8 @@ import (
 	"github.com/jvikstedt/bluemoon/ws"
 )
 
+var hub *gate.Hub
+
 func manageConn(conn *net.TCPConn) error {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
@@ -21,6 +23,9 @@ func manageConn(conn *net.TCPConn) error {
 		fmt.Printf("Got message: %s\n", string(data))
 		worker.Write([]byte("Pong"))
 	})
+	hub.AddWorker(w)
+	defer hub.RemoveWorker(w)
+
 	go w.EnableReader()
 	w.EnableWriter()
 
@@ -30,17 +35,22 @@ func manageConn(conn *net.TCPConn) error {
 func manageWSConn(conn *websocket.Conn) error {
 	cw := ws.NewConnectionWrapper(conn)
 
-	w := gate.NewUser(1, cw, func(user *gate.User, data []byte) {
+	u := gate.NewUser(1, cw, func(user *gate.User, data []byte) {
 		fmt.Printf("Got message from user: %s\n", string(data))
 		user.Write([]byte("Pong"))
 	})
-	go w.EnableReader()
-	w.EnableWriter()
+	hub.AddUser(u)
+	defer hub.RemoveUser(u)
+
+	go u.EnableReader()
+	u.EnableWriter()
 
 	return nil
 }
 
 func main() {
+	hub = gate.NewHub()
+
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")
 
