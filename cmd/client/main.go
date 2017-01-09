@@ -6,14 +6,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/jvikstedt/bluemoon/bluemoon"
 	"github.com/jvikstedt/bluemoon/socket"
 	"github.com/jvikstedt/bluemoon/ws"
 )
-
-type ReadWriter interface {
-	Write(data []byte)
-	Read() ([]byte, error)
-}
 
 var protocols = map[int]string{
 	1: "websocket",
@@ -105,7 +101,7 @@ func connectViaSocket(addr string) {
 	}
 }
 
-func handleUserInput(rw ReadWriter, quitChan chan bool) {
+func handleUserInput(writer bluemoon.Writer, quitChan chan bool) {
 	reader := bufio.NewReader(os.Stdin)
 
 Loop:
@@ -116,7 +112,7 @@ Loop:
 		default:
 			fmt.Printf("What you want to send to the server?\n")
 			userInput, _ := reader.ReadString('\n')
-			rw.Write([]byte(userInput))
+			writer.Write([]byte(userInput))
 		}
 	}
 }
