@@ -11,6 +11,7 @@ import (
 
 	"github.com/jvikstedt/bluemoon/bluemoon"
 	"github.com/jvikstedt/bluemoon/gate"
+	"github.com/jvikstedt/bluemoon/gate/client"
 	"github.com/jvikstedt/bluemoon/gate/controller"
 	"github.com/jvikstedt/bluemoon/socket"
 	"github.com/jvikstedt/bluemoon/ws"
@@ -27,7 +28,7 @@ func manageConn(conn *net.TCPConn) error {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
 
-	w := bluemoon.NewBaseClient(1, cw, func(client bluemoon.Client, data []byte) {
+	w := client.NewWorkerClient(1, cw, func(client bluemoon.Client, data []byte) {
 		fmt.Printf("New message from worker: %d\n", client.ID())
 		fmt.Print(string(data))
 		var dn DN
@@ -55,7 +56,7 @@ func manageConn(conn *net.TCPConn) error {
 func manageWSConn(conn *websocket.Conn) error {
 	cw := ws.NewConnectionWrapper(conn)
 
-	u := bluemoon.NewBaseClient(1, cw, func(client bluemoon.Client, data []byte) {
+	u := client.NewUserClient(1, cw, func(client bluemoon.Client, data []byte) {
 		fmt.Printf("New message from user: %d\n", client.ID())
 		fmt.Print(string(data))
 		var dn DN
