@@ -8,17 +8,17 @@ import (
 )
 
 type UserStore struct {
-	users map[int]*client.User
+	users map[int]*client.UserClient
 	uLock sync.RWMutex
 }
 
 func NewUserStore() *UserStore {
 	return &UserStore{
-		users: make(map[int]*client.User),
+		users: make(map[int]*client.UserClient),
 	}
 }
 
-func (us *UserStore) Add(user *client.User) error {
+func (us *UserStore) Add(user *client.UserClient) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -31,7 +31,7 @@ func (us *UserStore) Add(user *client.User) error {
 	return nil
 }
 
-func (us *UserStore) Remove(user *client.User) error {
+func (us *UserStore) Remove(user *client.UserClient) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -44,7 +44,7 @@ func (us *UserStore) Remove(user *client.User) error {
 	return nil
 }
 
-func (us *UserStore) ByID(id int) (*client.User, error) {
+func (us *UserStore) ByID(id int) (*client.UserClient, error) {
 	us.uLock.RLock()
 	defer us.uLock.RUnlock()
 

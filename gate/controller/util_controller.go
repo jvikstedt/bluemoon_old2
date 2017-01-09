@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 
-	"github.com/jvikstedt/bluemoon/gate/client"
+	"github.com/jvikstedt/bluemoon/bluemoon"
 )
 
 type UtilController struct {
@@ -13,12 +13,12 @@ func NewUtilController() *UtilController {
 	return &UtilController{}
 }
 
-func (uh *UtilController) Quit(user *client.User, data []byte) {
-	fmt.Printf("Quitting client: %d\n", user.ID())
-	user.Close()
+func (uh *UtilController) Quit(client bluemoon.Client, data []byte) {
+	fmt.Printf("Quitting client: %d\n", client.ID())
+	client.Close()
 }
 
-func (uh *UtilController) Ping(user *client.User, data []byte) {
-	fmt.Printf("Received ping from client: %d\n", user.ID())
-	user.Write([]byte("pong"))
+func (uh *UtilController) Ping(client bluemoon.Client, data []byte) {
+	fmt.Printf("Received ping from client: %d\n", client.ID())
+	client.Write([]byte("pong"))
 }

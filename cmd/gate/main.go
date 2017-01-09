@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
+	"github.com/jvikstedt/bluemoon/bluemoon"
 	"github.com/jvikstedt/bluemoon/gate/client"
 	"github.com/jvikstedt/bluemoon/gate/controller"
 	"github.com/jvikstedt/bluemoon/gate/store"
@@ -18,8 +19,8 @@ import (
 
 var userStore *store.UserStore
 var workerStore *store.WorkerStore
-var userRouter *client.UserRouter
-var workerRouter *client.WorkerRouter
+var userRouter *bluemoon.DataRouter
+var workerRouter *bluemoon.DataRouter
 
 type DN struct {
 	Name string `json:"name"`
@@ -29,7 +30,7 @@ func manageConn(conn *net.TCPConn) error {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
 
-	w := client.NewWorker(1, cw, func(client *client.Worker, data []byte) {
+	w := client.NewWorkerClient(1, cw, func(client bluemoon.Client, data []byte) {
 		fmt.Printf("New message from worker: %d\n", client.ID())
 		fmt.Print(string(data))
 		var dn DN
@@ -57,7 +58,7 @@ func manageConn(conn *net.TCPConn) error {
 func manageWSConn(conn *websocket.Conn) error {
 	cw := ws.NewConnectionWrapper(conn)
 
-	u := client.NewUser(1, cw, func(client *client.User, data []byte) {
+	u := client.NewUserClient(1, cw, func(client bluemoon.Client, data []byte) {
 		fmt.Printf("New message from user: %d\n", client.ID())
 		fmt.Print(string(data))
 		var dn DN
@@ -87,11 +88,13 @@ func main() {
 	userStore = store.NewUserStore()
 	workerStore = store.NewWorkerStore()
 
-	workerRouter = client.NewWorkerRouter()
-
 	utilController := controller.NewUtilController()
 
-	userRouter = client.NewUserRouter()
+	workerRouter = bluemoon.NewDataRouter()
+	workerRouter.Register("quit", utilController.Quit)
+	workerRouter.Register("ping", utilController.Ping)
+
+	userRouter = bluemoon.NewDataRouter()
 	userRouter.Register("quit", utilController.Quit)
 	userRouter.Register("ping", utilController.Ping)
 

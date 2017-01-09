@@ -8,17 +8,17 @@ import (
 )
 
 type WorkerStore struct {
-	workers map[int]*client.Worker
+	workers map[int]*client.WorkerClient
 	uLock   sync.RWMutex
 }
 
 func NewWorkerStore() *WorkerStore {
 	return &WorkerStore{
-		workers: make(map[int]*client.Worker),
+		workers: make(map[int]*client.WorkerClient),
 	}
 }
 
-func (us *WorkerStore) Add(worker *client.Worker) error {
+func (us *WorkerStore) Add(worker *client.WorkerClient) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -31,7 +31,7 @@ func (us *WorkerStore) Add(worker *client.Worker) error {
 	return nil
 }
 
-func (us *WorkerStore) Remove(worker *client.Worker) error {
+func (us *WorkerStore) Remove(worker *client.WorkerClient) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -44,7 +44,7 @@ func (us *WorkerStore) Remove(worker *client.Worker) error {
 	return nil
 }
 
-func (us *WorkerStore) ByID(id int) (*client.Worker, error) {
+func (us *WorkerStore) ByID(id int) (*client.WorkerClient, error) {
 	us.uLock.RLock()
 	defer us.uLock.RUnlock()
 

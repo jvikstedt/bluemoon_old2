@@ -12,3 +12,11 @@ type ReadWriter interface {
 	Reader
 	Writer
 }
+
+type Client interface {
+	Writer
+	ID() int
+	Close()
+}
+
+type HandleClientDataFunc func(client Client, data []byte)
