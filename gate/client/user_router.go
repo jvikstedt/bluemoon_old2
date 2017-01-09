@@ -1,29 +1,29 @@
-package bluemoon
+package client
 
 import (
 	"fmt"
 	"sync"
 )
 
-type DataRouter struct {
-	handlers map[string]HandleClientDataFunc
+type UserRouter struct {
+	handlers map[string]HandleUserDataFunc
 	hlock    sync.RWMutex
 }
 
-func NewDataRouter() *DataRouter {
-	return &DataRouter{
-		handlers: make(map[string]HandleClientDataFunc),
+func NewUserRouter() *UserRouter {
+	return &UserRouter{
+		handlers: make(map[string]HandleUserDataFunc),
 	}
 }
 
-func (dr *DataRouter) Register(name string, handler HandleClientDataFunc) {
+func (dr *UserRouter) Register(name string, handler HandleUserDataFunc) {
 	dr.hlock.Lock()
 	defer dr.hlock.Unlock()
 
 	dr.handlers[name] = handler
 }
 
-func (dr *DataRouter) UnRegister(name string) error {
+func (dr *UserRouter) UnRegister(name string) error {
 	dr.hlock.Lock()
 	defer dr.hlock.Unlock()
 
@@ -34,7 +34,7 @@ func (dr *DataRouter) UnRegister(name string) error {
 	return fmt.Errorf("Could not find handler with a name: %s", name)
 }
 
-func (dr *DataRouter) Handler(name string) (HandleClientDataFunc, error) {
+func (dr *UserRouter) Handler(name string) (HandleUserDataFunc, error) {
 	dr.hlock.RLock()
 	defer dr.hlock.RUnlock()
 
