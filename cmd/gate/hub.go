@@ -25,8 +25,10 @@ type DN struct {
 	Name string `json:"name"`
 }
 
+var idgen = bluemoon.NewIDGen()
+
 func (h *Hub) ManageWorkerConn(rw bluemoon.ReadWriter) error {
-	w := bluemoon.NewBaseClient(1, rw, func(client bluemoon.Client, data []byte) {
+	w := bluemoon.NewBaseClient(idgen.Next(), rw, func(client bluemoon.Client, data []byte) {
 		fmt.Printf("New message from worker: %d\n", client.ID())
 		fmt.Print(string(data))
 		var dn DN
@@ -52,7 +54,7 @@ func (h *Hub) ManageWorkerConn(rw bluemoon.ReadWriter) error {
 }
 
 func (h *Hub) ManageUserConn(rw bluemoon.ReadWriter) error {
-	u := bluemoon.NewBaseClient(1, rw, func(client bluemoon.Client, data []byte) {
+	u := bluemoon.NewBaseClient(idgen.Next(), rw, func(client bluemoon.Client, data []byte) {
 		fmt.Printf("New message from user: %d\n", client.ID())
 		fmt.Print(string(data))
 		var dn DN
