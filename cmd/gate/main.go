@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -14,81 +12,19 @@ import (
 	"github.com/jvikstedt/bluemoon/ws"
 )
 
-var userStore *bluemoon.ClientStore
-var workerStore *bluemoon.ClientStore
-var dataRouter *bluemoon.DataRouter
-
-type DN struct {
-	Name string `json:"name"`
-}
-
-func manageConn(conn *net.TCPConn) error {
-	cw := socket.NewConnectionWrapper(conn)
-	defer cw.Close()
-
-	w := bluemoon.NewBaseClient(1, cw, func(client bluemoon.Client, data []byte) {
-		fmt.Printf("New message from worker: %d\n", client.ID())
-		fmt.Print(string(data))
-		var dn DN
-		err := json.Unmarshal(data, &dn)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		handle, err := dataRouter.Handler(dn.Name)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		handle(client, data)
-	})
-	workerStore.Add(w)
-	defer workerStore.Remove(w)
-
-	go w.EnableReader()
-	w.EnableWriter()
-
-	return nil
-}
-
-func manageWSConn(conn *websocket.Conn) error {
-	cw := ws.NewConnectionWrapper(conn)
-
-	u := bluemoon.NewBaseClient(1, cw, func(client bluemoon.Client, data []byte) {
-		fmt.Printf("New message from user: %d\n", client.ID())
-		fmt.Print(string(data))
-		var dn DN
-		err := json.Unmarshal(data, &dn)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		handle, err := dataRouter.Handler(dn.Name)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		handle(client, data)
-	})
-
-	userStore.Add(u)
-	defer userStore.Remove(u)
-
-	go u.EnableReader()
-	u.EnableWriter()
-
-	return nil
-}
+var hub *Hub
 
 func main() {
-	userStore = bluemoon.NewClientStore()
-	workerStore = bluemoon.NewClientStore()
+	workerStore := bluemoon.NewClientStore()
+	userStore := bluemoon.NewClientStore()
 
 	utilController := NewUtilController()
 
-	dataRouter = bluemoon.NewDataRouter()
+	dataRouter := bluemoon.NewDataRouter()
 	dataRouter.Register("quit", utilController.Quit)
 	dataRouter.Register("ping", utilController.Ping)
+
+	hub = NewHub(dataRouter, workerStore, userStore)
 
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")
@@ -96,4 +32,18 @@ func main() {
 	wsServer := ws.NewServer(manageWSConn)
 	http.Handle("/", wsServer)
 	log.Fatal(http.ListenAndServe(":4000", nil))
+}
+
+func manageConn(conn *net.TCPConn) error {
+	cw := socket.NewConnectionWrapper(conn)
+	defer cw.Close()
+
+	return hub.ManageWorkerConn(cw)
+}
+
+func manageWSConn(conn *websocket.Conn) error {
+	cw := ws.NewConnectionWrapper(conn)
+	defer cw.Close()
+
+	return hub.ManageUserConn(cw)
 }
