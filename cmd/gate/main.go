@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/jvikstedt/bluemoon/bluemoon"
-	"github.com/jvikstedt/bluemoon/gate/controller"
 	"github.com/jvikstedt/bluemoon/socket"
 	"github.com/jvikstedt/bluemoon/ws"
 )
@@ -85,7 +84,7 @@ func main() {
 	userStore = bluemoon.NewClientStore()
 	workerStore = bluemoon.NewClientStore()
 
-	utilController := controller.NewUtilController()
+	utilController := NewUtilController()
 
 	dataRouter = bluemoon.NewDataRouter()
 	dataRouter.Register("quit", utilController.Quit)
