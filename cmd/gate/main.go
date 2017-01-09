@@ -10,14 +10,15 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/jvikstedt/bluemoon/bluemoon"
-	"github.com/jvikstedt/bluemoon/gate"
 	"github.com/jvikstedt/bluemoon/gate/client"
 	"github.com/jvikstedt/bluemoon/gate/controller"
+	"github.com/jvikstedt/bluemoon/gate/store"
 	"github.com/jvikstedt/bluemoon/socket"
 	"github.com/jvikstedt/bluemoon/ws"
 )
 
-var hub *gate.Hub
+var userStore *store.UserStore
+var workerStore *store.WorkerStore
 var dataRouter *bluemoon.DataRouter
 
 type DN struct {
@@ -44,8 +45,8 @@ func manageConn(conn *net.TCPConn) error {
 		}
 		handle(client, data)
 	})
-	hub.AddWorker(w)
-	defer hub.RemoveWorker(w)
+	workerStore.Add(w)
+	defer workerStore.Remove(w)
 
 	go w.EnableReader()
 	w.EnableWriter()
@@ -73,8 +74,8 @@ func manageWSConn(conn *websocket.Conn) error {
 		handle(client, data)
 	})
 
-	hub.AddUser(u)
-	defer hub.RemoveUser(u)
+	userStore.Add(u)
+	defer userStore.Remove(u)
 
 	go u.EnableReader()
 	u.EnableWriter()
@@ -83,13 +84,14 @@ func manageWSConn(conn *websocket.Conn) error {
 }
 
 func main() {
+	userStore = store.NewUserStore()
+	workerStore = store.NewWorkerStore()
+
 	utilController := controller.NewUtilController()
 
 	dataRouter = bluemoon.NewDataRouter()
 	dataRouter.Register("quit", utilController.Quit)
 	dataRouter.Register("ping", utilController.Ping)
-
-	hub = gate.NewHub()
 
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")
