@@ -3,23 +3,25 @@ package gate
 import (
 	"fmt"
 	"sync"
+
+	"github.com/jvikstedt/bluemoon/bluemoon"
 )
 
 type Hub struct {
-	workers     map[int]*Worker
-	users       map[int]*User
+	workers     map[int]bluemoon.Client
+	users       map[int]bluemoon.Client
 	workersLock sync.RWMutex
 	usersLock   sync.RWMutex
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		workers: make(map[int]*Worker),
-		users:   make(map[int]*User),
+		workers: make(map[int]bluemoon.Client),
+		users:   make(map[int]bluemoon.Client),
 	}
 }
 
-func (h *Hub) AddUser(user *User) error {
+func (h *Hub) AddUser(user bluemoon.Client) error {
 	h.usersLock.Lock()
 	defer h.usersLock.Unlock()
 
@@ -32,7 +34,7 @@ func (h *Hub) AddUser(user *User) error {
 	return nil
 }
 
-func (h *Hub) RemoveUser(user *User) error {
+func (h *Hub) RemoveUser(user bluemoon.Client) error {
 	h.usersLock.Lock()
 	defer h.usersLock.Unlock()
 
@@ -45,7 +47,7 @@ func (h *Hub) RemoveUser(user *User) error {
 	return nil
 }
 
-func (h *Hub) AddWorker(worker *Worker) error {
+func (h *Hub) AddWorker(worker bluemoon.Client) error {
 	h.workersLock.Lock()
 	defer h.workersLock.Unlock()
 
@@ -58,7 +60,7 @@ func (h *Hub) AddWorker(worker *Worker) error {
 	return nil
 }
 
-func (h *Hub) RemoveWorker(worker *Worker) error {
+func (h *Hub) RemoveWorker(worker bluemoon.Client) error {
 	h.workersLock.Lock()
 	defer h.workersLock.Unlock()
 
@@ -71,7 +73,7 @@ func (h *Hub) RemoveWorker(worker *Worker) error {
 	return nil
 }
 
-func (h *Hub) UserByID(id int) (*User, error) {
+func (h *Hub) UserByID(id int) (bluemoon.Client, error) {
 	h.usersLock.RLock()
 	defer h.usersLock.RUnlock()
 
@@ -82,7 +84,7 @@ func (h *Hub) UserByID(id int) (*User, error) {
 	return nil, fmt.Errorf("User with id of %d not found", id)
 }
 
-func (h *Hub) WorkerByID(id int) (*Worker, error) {
+func (h *Hub) WorkerByID(id int) (bluemoon.Client, error) {
 	h.workersLock.RLock()
 	defer h.workersLock.RUnlock()
 

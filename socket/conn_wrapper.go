@@ -22,6 +22,6 @@ func (cw *ConnectionWrapper) Write(data []byte) {
 
 func (cw *ConnectionWrapper) Read() ([]byte, error) {
 	request := make([]byte, 1024)
-	_, err := cw.conn.Read(request)
-	return request, err
+	len, err := cw.conn.Read(request)
+	return request[:len], err
 }

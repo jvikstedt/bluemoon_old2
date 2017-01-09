@@ -1,16 +1,14 @@
-package gate
+package bluemoon
 
-type HandleUserDataFunc func(user *User, data []byte)
-
-type User struct {
+type BaseClient struct {
 	id         int
 	writeCh    chan []byte
 	doneCh     chan bool
 	rw         ReadWriter
-	handleData HandleUserDataFunc
+	handleData HandleClientDataFunc
 }
 
-func (c *User) EnableWriter() {
+func (c *BaseClient) EnableWriter() {
 	for {
 		select {
 		case data := <-c.writeCh:
@@ -21,7 +19,7 @@ func (c *User) EnableWriter() {
 	}
 }
 
-func (c *User) EnableReader() {
+func (c *BaseClient) EnableReader() {
 	for {
 		if data, err := c.rw.Read(); err != nil {
 			break
@@ -32,20 +30,20 @@ func (c *User) EnableReader() {
 	c.Close()
 }
 
-func (c *User) Write(data []byte) {
+func (c *BaseClient) Write(data []byte) {
 	c.writeCh <- data
 }
 
-func (c *User) ID() int {
+func (c *BaseClient) ID() int {
 	return c.id
 }
 
-func (c *User) Close() {
+func (c *BaseClient) Close() {
 	c.doneCh <- true
 }
 
-func NewUser(id int, rw ReadWriter, dh HandleUserDataFunc) *User {
-	return &User{
+func NewBaseClient(id int, rw ReadWriter, dh HandleClientDataFunc) *BaseClient {
+	return &BaseClient{
 		id:         id,
 		writeCh:    make(chan []byte, 5),
 		doneCh:     make(chan bool, 3),

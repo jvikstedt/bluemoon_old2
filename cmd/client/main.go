@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/jvikstedt/bluemoon/socket"
@@ -104,15 +106,16 @@ func connectViaSocket(addr string) {
 }
 
 func handleUserInput(rw ReadWriter, quitChan chan bool) {
+	reader := bufio.NewReader(os.Stdin)
+
 Loop:
 	for {
 		select {
 		case <-quitChan:
 			break Loop
 		default:
-			var userInput string
 			fmt.Printf("What you want to send to the server?\n")
-			fmt.Scanf("%s", &userInput)
+			userInput, _ := reader.ReadString('\n')
 			rw.Write([]byte(userInput))
 		}
 	}
