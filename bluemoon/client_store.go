@@ -1,24 +1,22 @@
-package store
+package bluemoon
 
 import (
 	"fmt"
 	"sync"
-
-	"github.com/jvikstedt/bluemoon/gate/client"
 )
 
-type UserStore struct {
-	users map[int]*client.UserClient
+type ClientStore struct {
+	users map[int]Client
 	uLock sync.RWMutex
 }
 
-func NewUserStore() *UserStore {
-	return &UserStore{
-		users: make(map[int]*client.UserClient),
+func NewClientStore() *ClientStore {
+	return &ClientStore{
+		users: make(map[int]Client),
 	}
 }
 
-func (us *UserStore) Add(user *client.UserClient) error {
+func (us *ClientStore) Add(user Client) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -31,7 +29,7 @@ func (us *UserStore) Add(user *client.UserClient) error {
 	return nil
 }
 
-func (us *UserStore) Remove(user *client.UserClient) error {
+func (us *ClientStore) Remove(user Client) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -44,7 +42,7 @@ func (us *UserStore) Remove(user *client.UserClient) error {
 	return nil
 }
 
-func (us *UserStore) ByID(id int) (*client.UserClient, error) {
+func (us *ClientStore) ByID(id int) (Client, error) {
 	us.uLock.RLock()
 	defer us.uLock.RUnlock()
 
