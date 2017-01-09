@@ -19,7 +19,8 @@ import (
 
 var userStore *store.UserStore
 var workerStore *store.WorkerStore
-var dataRouter *bluemoon.DataRouter
+var userRouter *bluemoon.DataRouter
+var workerRouter *bluemoon.DataRouter
 
 type DN struct {
 	Name string `json:"name"`
@@ -38,7 +39,7 @@ func manageConn(conn *net.TCPConn) error {
 			fmt.Println(err)
 			return
 		}
-		handle, err := dataRouter.Handler(dn.Name)
+		handle, err := workerRouter.Handler(dn.Name)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -66,7 +67,7 @@ func manageWSConn(conn *websocket.Conn) error {
 			fmt.Println(err)
 			return
 		}
-		handle, err := dataRouter.Handler(dn.Name)
+		handle, err := userRouter.Handler(dn.Name)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -89,9 +90,13 @@ func main() {
 
 	utilController := controller.NewUtilController()
 
-	dataRouter = bluemoon.NewDataRouter()
-	dataRouter.Register("quit", utilController.Quit)
-	dataRouter.Register("ping", utilController.Ping)
+	workerRouter = bluemoon.NewDataRouter()
+	workerRouter.Register("quit", utilController.Quit)
+	workerRouter.Register("ping", utilController.Ping)
+
+	userRouter = bluemoon.NewDataRouter()
+	userRouter.Register("quit", utilController.Quit)
+	userRouter.Register("ping", utilController.Ping)
 
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")
