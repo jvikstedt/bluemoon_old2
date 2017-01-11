@@ -9,15 +9,16 @@ import (
 
 	"github.com/jvikstedt/bluemoon/bluemoon"
 	"github.com/jvikstedt/bluemoon/socket"
+	"github.com/jvikstedt/bluemoon/store"
 	"github.com/jvikstedt/bluemoon/ws"
 )
 
 var hub *Hub
 
 func main() {
-	workerStore := bluemoon.NewClientStore()
-	userStore := bluemoon.NewClientStore()
-	userInfoStore := NewUserInfoStore()
+	workerStore := store.NewClientStore()
+	userStore := store.NewClientStore()
+	userInfoStore := store.NewUserInfoStore()
 
 	utilController := NewUtilController(userInfoStore)
 

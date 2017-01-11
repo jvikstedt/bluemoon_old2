@@ -1,22 +1,24 @@
-package bluemoon
+package store
 
 import (
 	"fmt"
 	"sync"
+
+	"github.com/jvikstedt/bluemoon/bluemoon"
 )
 
 type ClientStore struct {
-	users map[int]Client
+	users map[int]bluemoon.Client
 	uLock sync.RWMutex
 }
 
 func NewClientStore() *ClientStore {
 	return &ClientStore{
-		users: make(map[int]Client),
+		users: make(map[int]bluemoon.Client),
 	}
 }
 
-func (us *ClientStore) Add(user Client) error {
+func (us *ClientStore) Add(user bluemoon.Client) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -29,7 +31,7 @@ func (us *ClientStore) Add(user Client) error {
 	return nil
 }
 
-func (us *ClientStore) Remove(user Client) error {
+func (us *ClientStore) Remove(user bluemoon.Client) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -42,7 +44,7 @@ func (us *ClientStore) Remove(user Client) error {
 	return nil
 }
 
-func (us *ClientStore) ByID(id int) (Client, error) {
+func (us *ClientStore) ByID(id int) (bluemoon.Client, error) {
 	us.uLock.RLock()
 	defer us.uLock.RUnlock()
 
@@ -53,7 +55,7 @@ func (us *ClientStore) ByID(id int) (Client, error) {
 	return nil, fmt.Errorf("User with id of %d not found", id)
 }
 
-func (us *ClientStore) One() (Client, error) {
+func (us *ClientStore) One() (bluemoon.Client, error) {
 	us.uLock.RLock()
 	defer us.uLock.RUnlock()
 

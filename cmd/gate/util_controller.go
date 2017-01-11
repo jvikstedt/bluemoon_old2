@@ -7,10 +7,10 @@ import (
 )
 
 type UtilController struct {
-	uis *UserInfoStore
+	uis bluemoon.UserInfoStore
 }
 
-func NewUtilController(uis *UserInfoStore) *UtilController {
+func NewUtilController(uis bluemoon.UserInfoStore) *UtilController {
 	return &UtilController{
 		uis: uis,
 	}

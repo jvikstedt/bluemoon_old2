@@ -9,12 +9,12 @@ import (
 
 type Hub struct {
 	dataRouter    *bluemoon.DataRouter
-	workerStore   *bluemoon.ClientStore
-	userStore     *bluemoon.ClientStore
-	userInfoStore *UserInfoStore
+	workerStore   bluemoon.ClientStore
+	userStore     bluemoon.ClientStore
+	userInfoStore bluemoon.UserInfoStore
 }
 
-func NewHub(dr *bluemoon.DataRouter, ws *bluemoon.ClientStore, us *bluemoon.ClientStore, uis *UserInfoStore) *Hub {
+func NewHub(dr *bluemoon.DataRouter, ws bluemoon.ClientStore, us bluemoon.ClientStore, uis bluemoon.UserInfoStore) *Hub {
 	return &Hub{
 		dataRouter:    dr,
 		workerStore:   ws,
@@ -64,7 +64,7 @@ func (h *Hub) PickWorker() (bluemoon.Client, error) {
 }
 
 func (h *Hub) buildUserInfo(client bluemoon.Client, worker bluemoon.Client) {
-	ui := &UserInfo{}
+	ui := &bluemoon.UserInfo{}
 	ui.SetWorker(worker)
 	h.userInfoStore.Add(client.ID(), ui)
 }
