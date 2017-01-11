@@ -55,14 +55,6 @@ func (h *Hub) ManageWorkerConn(rw bm.ReadWriter) error {
 	return nil
 }
 
-func (h *Hub) PickWorker() (bm.Client, error) {
-	worker, err := h.workerStore.One()
-	if err != nil {
-		return nil, err
-	}
-	return worker, nil
-}
-
 func (h *Hub) buildUserInfo(client bm.Client, worker bm.Client) {
 	ui := &bm.UserInfo{}
 	ui.SetWorker(worker)
@@ -87,7 +79,7 @@ func (h *Hub) ManageUserConn(rw bm.ReadWriter) error {
 		handle(client, data)
 	})
 
-	worker, err := h.PickWorker()
+	worker, err := h.workerStore.One()
 	if err != nil {
 		return err
 	}
