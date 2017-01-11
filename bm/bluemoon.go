@@ -1,4 +1,4 @@
-package bluemoon
+package bm
 
 type Reader interface {
 	Read() ([]byte, error)

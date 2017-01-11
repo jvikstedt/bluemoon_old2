@@ -1,4 +1,4 @@
-package bluemoon
+package bm
 
 import (
 	"sync"

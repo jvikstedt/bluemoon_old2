@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/jvikstedt/bluemoon/bluemoon"
+	"github.com/jvikstedt/bluemoon/bm"
 	"github.com/jvikstedt/bluemoon/socket"
 	"github.com/jvikstedt/bluemoon/store"
 	"github.com/jvikstedt/bluemoon/ws"
@@ -22,7 +22,7 @@ func main() {
 
 	utilController := NewUtilController(userInfoStore)
 
-	dataRouter := bluemoon.NewDataRouter()
+	dataRouter := bm.NewDataRouter()
 	dataRouter.Register("quit", utilController.Quit)
 	dataRouter.Register("ping", utilController.Ping)
 

@@ -3,25 +3,25 @@ package main
 import (
 	"fmt"
 
-	"github.com/jvikstedt/bluemoon/bluemoon"
+	"github.com/jvikstedt/bluemoon/bm"
 )
 
 type UtilController struct {
-	uis bluemoon.UserInfoStore
+	uis bm.UserInfoStore
 }
 
-func NewUtilController(uis bluemoon.UserInfoStore) *UtilController {
+func NewUtilController(uis bm.UserInfoStore) *UtilController {
 	return &UtilController{
 		uis: uis,
 	}
 }
 
-func (uh *UtilController) Quit(client bluemoon.Client, data []byte) {
+func (uh *UtilController) Quit(client bm.Client, data []byte) {
 	fmt.Printf("Quitting client: %d\n", client.ID())
 	client.Close()
 }
 
-func (uh *UtilController) Ping(client bluemoon.Client, data []byte) {
+func (uh *UtilController) Ping(client bm.Client, data []byte) {
 	userInfo := uh.uis.ByID(client.ID())
 	worker := userInfo.Worker()
 	worker.Write(data)

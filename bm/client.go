@@ -1,4 +1,4 @@
-package bluemoon
+package bm
 
 type BaseClient struct {
 	id         int

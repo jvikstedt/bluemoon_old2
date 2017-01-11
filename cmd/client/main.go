@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/jvikstedt/bluemoon/bluemoon"
+	"github.com/jvikstedt/bluemoon/bm"
 	"github.com/jvikstedt/bluemoon/socket"
 	"github.com/jvikstedt/bluemoon/ws"
 )
@@ -101,7 +101,7 @@ func connectViaSocket(addr string) {
 	}
 }
 
-func handleUserInput(writer bluemoon.Writer, quitChan chan bool) {
+func handleUserInput(writer bm.Writer, quitChan chan bool) {
 	reader := bufio.NewReader(os.Stdin)
 
 Loop:

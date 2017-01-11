@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/jvikstedt/bluemoon/bluemoon"
+	"github.com/jvikstedt/bluemoon/bm"
 	"github.com/jvikstedt/bluemoon/socket"
 )
 
@@ -17,7 +17,7 @@ func main() {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
 
-	w := bluemoon.NewBaseClient(1, cw, func(client bluemoon.Client, data []byte) {
+	w := bm.NewBaseClient(1, cw, func(client bm.Client, data []byte) {
 		fmt.Printf("New message from gate: %d\n", client.ID())
 		fmt.Print(string(data))
 	})

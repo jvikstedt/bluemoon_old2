@@ -4,21 +4,21 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/jvikstedt/bluemoon/bluemoon"
+	"github.com/jvikstedt/bluemoon/bm"
 )
 
 type ClientStore struct {
-	users map[int]bluemoon.Client
+	users map[int]bm.Client
 	uLock sync.RWMutex
 }
 
 func NewClientStore() *ClientStore {
 	return &ClientStore{
-		users: make(map[int]bluemoon.Client),
+		users: make(map[int]bm.Client),
 	}
 }
 
-func (us *ClientStore) Add(user bluemoon.Client) error {
+func (us *ClientStore) Add(user bm.Client) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -31,7 +31,7 @@ func (us *ClientStore) Add(user bluemoon.Client) error {
 	return nil
 }
 
-func (us *ClientStore) Remove(user bluemoon.Client) error {
+func (us *ClientStore) Remove(user bm.Client) error {
 	us.uLock.Lock()
 	defer us.uLock.Unlock()
 
@@ -44,7 +44,7 @@ func (us *ClientStore) Remove(user bluemoon.Client) error {
 	return nil
 }
 
-func (us *ClientStore) ByID(id int) (bluemoon.Client, error) {
+func (us *ClientStore) ByID(id int) (bm.Client, error) {
 	us.uLock.RLock()
 	defer us.uLock.RUnlock()
 
@@ -55,7 +55,7 @@ func (us *ClientStore) ByID(id int) (bluemoon.Client, error) {
 	return nil, fmt.Errorf("User with id of %d not found", id)
 }
 
-func (us *ClientStore) One() (bluemoon.Client, error) {
+func (us *ClientStore) One() (bm.Client, error) {
 	us.uLock.RLock()
 	defer us.uLock.RUnlock()
 
