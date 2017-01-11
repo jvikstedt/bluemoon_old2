@@ -8,16 +8,18 @@ import (
 )
 
 type Hub struct {
-	dataRouter  *bluemoon.DataRouter
-	workerStore *bluemoon.ClientStore
-	userStore   *bluemoon.ClientStore
+	dataRouter    *bluemoon.DataRouter
+	workerStore   *bluemoon.ClientStore
+	userStore     *bluemoon.ClientStore
+	userInfoStore *UserInfoStore
 }
 
-func NewHub(dr *bluemoon.DataRouter, ws *bluemoon.ClientStore, us *bluemoon.ClientStore) *Hub {
+func NewHub(dr *bluemoon.DataRouter, ws *bluemoon.ClientStore, us *bluemoon.ClientStore, uis *UserInfoStore) *Hub {
 	return &Hub{
-		dataRouter:  dr,
-		workerStore: ws,
-		userStore:   us,
+		dataRouter:    dr,
+		workerStore:   ws,
+		userStore:     us,
+		userInfoStore: uis,
 	}
 }
 
@@ -53,6 +55,20 @@ func (h *Hub) ManageWorkerConn(rw bluemoon.ReadWriter) error {
 	return nil
 }
 
+func (h *Hub) PickWorker() (bluemoon.Client, error) {
+	worker, err := h.workerStore.One()
+	if err != nil {
+		return nil, err
+	}
+	return worker, nil
+}
+
+func (h *Hub) buildUserInfo(client bluemoon.Client, worker bluemoon.Client) {
+	ui := &UserInfo{}
+	ui.SetWorker(worker)
+	h.userInfoStore.Add(client.ID(), ui)
+}
+
 func (h *Hub) ManageUserConn(rw bluemoon.ReadWriter) error {
 	u := bluemoon.NewBaseClient(idgen.Next(), rw, func(client bluemoon.Client, data []byte) {
 		fmt.Printf("New message from user: %d\n", client.ID())
@@ -70,6 +86,12 @@ func (h *Hub) ManageUserConn(rw bluemoon.ReadWriter) error {
 		}
 		handle(client, data)
 	})
+
+	worker, err := h.PickWorker()
+	if err != nil {
+		return err
+	}
+	h.buildUserInfo(u, worker)
 
 	h.userStore.Add(u)
 	defer h.userStore.Remove(u)

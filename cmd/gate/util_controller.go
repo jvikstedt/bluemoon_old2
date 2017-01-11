@@ -7,10 +7,13 @@ import (
 )
 
 type UtilController struct {
+	uis *UserInfoStore
 }
 
-func NewUtilController() *UtilController {
-	return &UtilController{}
+func NewUtilController(uis *UserInfoStore) *UtilController {
+	return &UtilController{
+		uis: uis,
+	}
 }
 
 func (uh *UtilController) Quit(client bluemoon.Client, data []byte) {
@@ -19,6 +22,10 @@ func (uh *UtilController) Quit(client bluemoon.Client, data []byte) {
 }
 
 func (uh *UtilController) Ping(client bluemoon.Client, data []byte) {
+	userInfo := uh.uis.ByID(client.ID())
+	worker := userInfo.Worker()
+	worker.Write(data)
+
 	fmt.Printf("Received ping from client: %d\n", client.ID())
 	client.Write([]byte("pong"))
 }

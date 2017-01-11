@@ -52,3 +52,13 @@ func (us *ClientStore) ByID(id int) (Client, error) {
 
 	return nil, fmt.Errorf("User with id of %d not found", id)
 }
+
+func (us *ClientStore) One() (Client, error) {
+	us.uLock.RLock()
+	defer us.uLock.RUnlock()
+
+	for _, user := range us.users {
+		return user, nil
+	}
+	return nil, fmt.Errorf("No clients found")
+}

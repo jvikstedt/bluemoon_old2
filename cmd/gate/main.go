@@ -17,14 +17,15 @@ var hub *Hub
 func main() {
 	workerStore := bluemoon.NewClientStore()
 	userStore := bluemoon.NewClientStore()
+	userInfoStore := NewUserInfoStore()
 
-	utilController := NewUtilController()
+	utilController := NewUtilController(userInfoStore)
 
 	dataRouter := bluemoon.NewDataRouter()
 	dataRouter.Register("quit", utilController.Quit)
 	dataRouter.Register("ping", utilController.Ping)
 
-	hub = NewHub(dataRouter, workerStore, userStore)
+	hub = NewHub(dataRouter, workerStore, userStore, userInfoStore)
 
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")
