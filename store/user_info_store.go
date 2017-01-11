@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/jvikstedt/bluemoon/bm"
@@ -17,10 +18,13 @@ func NewUserInfoStore() *UserInfoStore {
 	}
 }
 
-func (uis *UserInfoStore) ByID(id int) *bm.UserInfo {
+func (uis *UserInfoStore) ByID(id int) (*bm.UserInfo, error) {
 	uis.uilock.RLock()
 	defer uis.uilock.RUnlock()
-	return uis.userInfos[id]
+	if ui, ok := uis.userInfos[id]; ok {
+		return ui, nil
+	}
+	return nil, fmt.Errorf("No UserInfo found with an id of: %d", id)
 }
 
 func (uis *UserInfoStore) Add(id int, ui *bm.UserInfo) {

@@ -5,7 +5,7 @@ import (
 )
 
 type UserInfoStore interface {
-	ByID(id int) *UserInfo
+	ByID(id int) (*UserInfo, error)
 	Add(id int, ui *UserInfo)
 }
 

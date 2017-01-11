@@ -61,6 +61,17 @@ func (h *Hub) buildUserInfo(client bm.Client, worker bm.Client) {
 	h.userInfoStore.Add(client.ID(), ui)
 }
 
+func (h *Hub) userQuit(client bm.Client) {
+	userInfo, err := h.userInfoStore.ByID(client.ID())
+	if err != nil {
+		return
+	}
+	worker := userInfo.Worker()
+	if worker != nil {
+		worker.Write([]byte(fmt.Sprintf(`{"name": "user_quit", "payload": {"user_id": %d}}`, client.ID()) + "\n"))
+	}
+}
+
 func (h *Hub) ManageUserConn(rw bm.ReadWriter) error {
 	u := bm.NewBaseClient(idgen.Next(), rw, func(client bm.Client, data []byte) {
 		fmt.Printf("New message from user: %d\n", client.ID())
@@ -84,6 +95,7 @@ func (h *Hub) ManageUserConn(rw bm.ReadWriter) error {
 		return err
 	}
 	h.buildUserInfo(u, worker)
+	defer h.userQuit(u)
 
 	h.userStore.Add(u)
 	defer h.userStore.Remove(u)

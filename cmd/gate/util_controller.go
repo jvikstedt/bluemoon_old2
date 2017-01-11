@@ -22,7 +22,10 @@ func (uh *UtilController) Quit(client bm.Client, data []byte) {
 }
 
 func (uh *UtilController) Ping(client bm.Client, data []byte) {
-	userInfo := uh.uis.ByID(client.ID())
+	userInfo, err := uh.uis.ByID(client.ID())
+	if err != nil {
+		return
+	}
 	worker := userInfo.Worker()
 	worker.Write(data)
 
