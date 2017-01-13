@@ -1,11 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/jvikstedt/bluemoon/bm"
 	"github.com/jvikstedt/bluemoon/socket"
 )
+
+type DN struct {
+	Name string `json:"name"`
+}
 
 func main() {
 	sClient := socket.NewClient()
@@ -17,9 +22,25 @@ func main() {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
 
+	userController := NewUserController()
+
+	dataRouter := bm.NewDataRouter()
+	dataRouter.Register("user_joined", userController.UserJoined)
+	dataRouter.Register("user_left", userController.UserLeft)
+
 	w := bm.NewBaseClient(1, cw, func(client bm.Client, data []byte) {
-		fmt.Printf("New message from gate: %d\n", client.ID())
-		fmt.Print(string(data))
+		var dn DN
+		err := json.Unmarshal(data, &dn)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		handle, err := dataRouter.Handler(dn.Name)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		handle(client, data)
 	})
 
 	go w.EnableReader()

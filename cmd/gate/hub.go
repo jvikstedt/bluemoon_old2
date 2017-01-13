@@ -68,7 +68,7 @@ func (h *Hub) userQuit(client bm.Client) {
 	}
 	worker := userInfo.Worker()
 	if worker != nil {
-		worker.Write([]byte(fmt.Sprintf(`{"name": "user_quit", "payload": {"user_id": %d}}`, client.ID()) + "\n"))
+		worker.Write([]byte(fmt.Sprintf(`{"name": "user_left", "payload": {"user_id": %d}}`, client.ID()) + "\n"))
 	}
 }
 
