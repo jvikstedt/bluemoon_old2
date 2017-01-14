@@ -1,25 +1,19 @@
 package main
 
-import (
-	"sync"
-
-	"github.com/jvikstedt/bluemoon/bm"
-)
+import "sync"
 
 type Player struct {
-	client bm.Client
-	id     int
-	x      int
-	y      int
-	pLock  sync.RWMutex
+	id    int
+	x     int
+	y     int
+	pLock sync.RWMutex
 }
 
-func NewPlayer(client bm.Client, id, x, y int) *Player {
+func NewPlayer(id, x, y int) *Player {
 	return &Player{
-		client: client,
-		id:     id,
-		x:      x,
-		y:      y,
+		id: id,
+		x:  x,
+		y:  y,
 	}
 }
 
@@ -57,8 +51,4 @@ func (p *Player) SetX(x int) {
 	p.pLock.Lock()
 	defer p.pLock.Unlock()
 	p.x = x
-}
-
-func (p *Player) Client() bm.Client {
-	return p.client
 }

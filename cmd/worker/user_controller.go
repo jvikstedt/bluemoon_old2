@@ -31,7 +31,7 @@ func (uc *UserController) UserJoined(client bm.Client, data []byte) {
 		fmt.Println(err)
 	}
 	fmt.Println(userEvent)
-	player := NewPlayer(client, userEvent.Payload.UserID, 50, 50)
+	player := NewPlayer(userEvent.Payload.UserID, 50, 50)
 	uc.hub.AddPlayer(player)
 }
 
