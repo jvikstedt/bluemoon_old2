@@ -22,11 +22,14 @@ func main() {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
 
-	userController := NewUserController()
+	hub := NewHub()
+
+	userController := NewUserController(hub)
 
 	dataRouter := bm.NewDataRouter()
 	dataRouter.Register("user_joined", userController.UserJoined)
 	dataRouter.Register("user_left", userController.UserLeft)
+	dataRouter.Register("direction", userController.Direction)
 
 	w := bm.NewBaseClient(1, cw, func(client bm.Client, data []byte) {
 		var dn DN

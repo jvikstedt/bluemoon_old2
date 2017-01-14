@@ -20,11 +20,13 @@ func main() {
 	userStore := store.NewClientStore()
 	userInfoStore := store.NewUserInfoStore()
 
-	utilController := NewUtilController(userInfoStore)
+	utilController := NewUtilController(userInfoStore, userStore)
 
 	dataRouter := bm.NewDataRouter()
 	dataRouter.Register("quit", utilController.Quit)
 	dataRouter.Register("ping", utilController.Ping)
+	dataRouter.Register("move", utilController.Move)
+	dataRouter.Register("direction", utilController.Direction)
 
 	hub = NewHub(dataRouter, workerStore, userStore, userInfoStore)
 

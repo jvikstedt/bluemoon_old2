@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/jvikstedt/bluemoon/bm"
 )
@@ -93,19 +92,12 @@ func (h *Hub) ManageUserConn(rw bm.ReadWriter) error {
 
 	u.Write([]byte(fmt.Sprintf(`{"name": "new_player", "payload": {"id": %d, "x": 50, "y": 50}}`, u.ID()) + "\n"))
 
-	go func() {
-		x, y := 50, 50
-		for {
-			time.Sleep(time.Second * 1)
-			x += 10
-			u.Write([]byte(fmt.Sprintf(`{"name": "move", "payload": {"id": %d, "x": %d, "y": %d}}`, u.ID(), x, y) + "\n"))
-		}
-	}()
-
 	worker, err := h.workerStore.One()
 	if err != nil {
 		return err
 	}
+
+	worker.Write([]byte(fmt.Sprintf(`{"name": "user_joined", "payload": {"user_id": %d}}`, u.ID()) + "\n"))
 	h.buildUserInfo(u, worker)
 	defer h.userQuit(u)
 

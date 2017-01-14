@@ -61,13 +61,13 @@ ws.onclose = function() {
 
 function onKeyUp(key) {
   if (key.keyCode === 38) {
-    ws.send(`{"name": "direction", "payload": {"axis": "y", "val": -1}}`);
+    ws.send(`{"name": "direction", "axis": "y", "val": -1}`);
   } else if (key.keyCode === 40) {
-    ws.send(`{"name": "direction", "payload": {"axis": "y", "val": 1}}`);
+    ws.send(`{"name": "direction", "axis": "y", "val": 1}`);
   } else if (key.keyCode === 37) {
-    ws.send(`{"name": "direction", "payload": {"axis": "x", "val": -1}}`);
+    ws.send(`{"name": "direction", "axis": "x", "val": -1}`);
   } else if (key.keyCode === 39) {
-    ws.send(`{"name": "direction", "payload": {"axis": "x", "val": 1}}`);
+    ws.send(`{"name": "direction", "axis": "x", "val": 1}`);
   }
 }
 
