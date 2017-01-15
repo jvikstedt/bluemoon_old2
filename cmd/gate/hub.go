@@ -90,8 +90,6 @@ func (h *Hub) ManageUserConn(rw bm.ReadWriter) error {
 		handle(client, data)
 	})
 
-	u.Write([]byte(fmt.Sprintf(`{"name": "new_player", "payload": {"id": %d, "x": 50, "y": 50}}`, u.ID()) + "\n"))
-
 	worker, err := h.workerStore.One()
 	if err != nil {
 		return err

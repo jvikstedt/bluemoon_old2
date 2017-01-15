@@ -44,8 +44,7 @@ ws.onmessage = function (evt) {
 
   switch(obj.name) {
     case "new_player":
-      var pl = obj.payload;
-      newPlayer(pl.id, pl.x, pl.y);
+      newPlayer(obj.id, obj.x, obj.y);
       break;
     case "move":
       move(obj.id, obj.x, obj.y);

@@ -33,6 +33,8 @@ func (uc *UserController) UserJoined(client bm.Client, data []byte) {
 	fmt.Println(userEvent)
 	player := NewPlayer(userEvent.Payload.UserID, 50, 50)
 	uc.hub.AddPlayer(player)
+
+	uc.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": 50, "y": 50}`, player.ID())))
 }
 
 func (uc *UserController) UserLeft(client bm.Client, data []byte) {

@@ -52,6 +52,22 @@ type Message struct {
 	Payload []byte `json:"payload"`
 }
 
+func (h *Hub) BroadcastTo(userIds []int, payload []byte) {
+	msg := Message{
+		Name:    "to_users",
+		UserIds: userIds,
+		Payload: payload,
+	}
+	bytes, err := json.Marshal(msg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	bytes = append(bytes, '\n')
+	h.gate.Write(bytes)
+}
+
 func (h *Hub) Broadcast(payload []byte) {
 	h.pLock.RLock()
 	defer h.pLock.RUnlock()
@@ -81,6 +97,10 @@ func (h *Hub) Broadcast(payload []byte) {
 func (h *Hub) AddPlayer(p *Player) {
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
+
+	for _, v := range h.players {
+		h.BroadcastTo([]int{p.ID()}, []byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": %d, "y": %d}`, v.ID(), v.X(), v.Y())))
+	}
 	h.players[p.ID()] = p
 }
 
