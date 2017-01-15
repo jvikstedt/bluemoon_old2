@@ -43,8 +43,7 @@ func (uc *UserController) UserLeft(client bm.Client, data []byte) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(userEvent)
-	uc.hub.RemovePlayerByID(client.ID())
+	uc.hub.RemovePlayerByID(userEvent.Payload.UserID)
 }
 
 type MoveEvent struct {
