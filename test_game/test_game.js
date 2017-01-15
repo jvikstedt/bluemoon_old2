@@ -28,6 +28,11 @@ function newPlayer(id, x, y) {
   container.addChild(bunny);
 }
 
+function removePlayer(id) {
+  container.removeChild(players[id]);
+  delete players[id];
+}
+
 function move(id, x, y) {
   players[id].position.x = x;
   players[id].position.y = y;
@@ -46,6 +51,8 @@ ws.onmessage = function (evt) {
     case "new_player":
       newPlayer(obj.id, obj.x, obj.y);
       break;
+    case "remove_player":
+      removePlayer(obj.id);
     case "move":
       move(obj.id, obj.x, obj.y);
       break;

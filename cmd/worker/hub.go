@@ -105,12 +105,14 @@ func (h *Hub) AddPlayer(p *Player) {
 }
 
 func (h *Hub) RemovePlayer(p *Player) {
+	defer h.Broadcast([]byte(fmt.Sprintf(`{"name": "remove_player", "id": %d}`, p.ID())))
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
 	delete(h.players, p.ID())
 }
 
 func (h *Hub) RemovePlayerByID(id int) {
+	defer h.Broadcast([]byte(fmt.Sprintf(`{"name": "remove_player", "id": %d}`, id)))
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
 	delete(h.players, id)
@@ -119,6 +121,5 @@ func (h *Hub) RemovePlayerByID(id int) {
 func (h *Hub) PlayerByID(id int) *Player {
 	h.pLock.RLock()
 	defer h.pLock.RUnlock()
-	fmt.Println(h.players)
 	return h.players[id]
 }
