@@ -22,8 +22,7 @@ func main() {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
 
-	hub := NewHub()
-
+	hub := NewHub(nil)
 	userController := NewUserController(hub)
 
 	dataRouter := bm.NewDataRouter()
@@ -31,7 +30,7 @@ func main() {
 	dataRouter.Register("user_left", userController.UserLeft)
 	dataRouter.Register("direction", userController.Direction)
 
-	w := bm.NewBaseClient(1, cw, func(client bm.Client, data []byte) {
+	gate := bm.NewBaseClient(1, cw, func(client bm.Client, data []byte) {
 		var dn DN
 		err := json.Unmarshal(data, &dn)
 		if err != nil {
@@ -46,6 +45,10 @@ func main() {
 		handle(client, data)
 	})
 
-	go w.EnableReader()
-	w.EnableWriter()
+	hub.SetGate(gate)
+
+	go gate.EnableReader()
+	go gate.EnableWriter()
+
+	hub.Run()
 }

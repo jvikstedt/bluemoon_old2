@@ -67,14 +67,8 @@ func (uc *UserController) Direction(client bm.Client, data []byte) {
 	}
 
 	if moveEvent.Payload.Axis == "x" {
-		x := player.X()
-		x += 20 * moveEvent.Payload.Val
-		player.SetX(x)
-	} else {
-		y := player.Y()
-		y += 20 * moveEvent.Payload.Val
-		player.SetY(y)
+		player.SetXDir(moveEvent.Payload.Val)
+	} else if moveEvent.Payload.Axis == "y" {
+		player.SetYDir(moveEvent.Payload.Val)
 	}
-
-	client.Write([]byte(fmt.Sprintf(`{"name": "move", "user_id": %d, "payload": {"id": %d, "x": %d, "y": %d}}`, moveEvent.UserID, moveEvent.UserID, player.X(), player.Y()) + "\n"))
 }

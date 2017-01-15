@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/jvikstedt/bluemoon/bm"
 )
@@ -62,5 +63,5 @@ func (uh *UtilController) Direction(client bm.Client, data []byte) {
 		return
 	}
 	worker := userInfo.Worker()
-	worker.Write([]byte(fmt.Sprintf(`{"name": "direction", "user_id": %d, "payload": %s}`, client.ID(), string(data)) + "\n"))
+	worker.Write([]byte(fmt.Sprintf(`{"name": "direction", "user_id": %d, "payload": %s}`, client.ID(), strings.TrimSpace(string(data))) + "\n"))
 }

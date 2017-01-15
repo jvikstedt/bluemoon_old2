@@ -1,14 +1,21 @@
 package socket
 
-import "net"
+import (
+	"bufio"
+	"net"
+)
 
 type ConnectionWrapper struct {
-	conn net.Conn
+	conn   net.Conn
+	reader *bufio.Reader
+	writer *bufio.Writer
 }
 
 func NewConnectionWrapper(conn net.Conn) *ConnectionWrapper {
 	return &ConnectionWrapper{
-		conn: conn,
+		conn:   conn,
+		writer: bufio.NewWriter(conn),
+		reader: bufio.NewReader(conn),
 	}
 }
 
@@ -17,11 +24,11 @@ func (cw *ConnectionWrapper) Close() error {
 }
 
 func (cw *ConnectionWrapper) Write(data []byte) {
-	cw.conn.Write(data)
+	cw.writer.WriteString(string(data))
+	cw.writer.Flush()
 }
 
 func (cw *ConnectionWrapper) Read() ([]byte, error) {
-	request := make([]byte, 1024)
-	len, err := cw.conn.Read(request)
-	return request[:len], err
+	line, _ := cw.reader.ReadString('\n')
+	return []byte(line), nil
 }
