@@ -28,7 +28,7 @@ func (h *Hub) SetGate(gate bm.Client) {
 
 func (h *Hub) Run() {
 	last := time.Now()
-	for range time.Tick(1 * time.Second) {
+	for range time.Tick(100 * time.Millisecond) {
 		delta := time.Since(last).Seconds() + 1
 		last = time.Now()
 

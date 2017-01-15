@@ -17,7 +17,7 @@ func NewPlayer(id, x, y int) *Player {
 		id:    id,
 		x:     x,
 		y:     y,
-		speed: 10,
+		speed: 4,
 	}
 }
 
