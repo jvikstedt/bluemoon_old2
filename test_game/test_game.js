@@ -48,8 +48,7 @@ ws.onmessage = function (evt) {
       newPlayer(pl.id, pl.x, pl.y);
       break;
     case "move":
-      var pl = obj.payload;
-      move(pl.id, pl.x, pl.y);
+      move(obj.id, obj.x, obj.y);
       break;
     default:
       console.log("not found handler: " + obj.name);

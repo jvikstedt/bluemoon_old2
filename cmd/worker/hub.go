@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -41,8 +42,40 @@ func (h *Hub) updatePlayers(delta float64) {
 
 	for _, p := range h.players {
 		p.Update(delta)
-		h.gate.Write([]byte(fmt.Sprintf(`{"name": "move", "user_id": %d, "payload": {"id": %d, "x": %d, "y": %d}}`, p.ID(), p.ID(), p.X(), p.Y()) + "\n"))
+		h.Broadcast([]byte(fmt.Sprintf(`{"name": "move", "id": %d, "x": %d, "y": %d}`, p.ID(), p.X(), p.Y())))
 	}
+}
+
+type Message struct {
+	Name    string `json:"name"`
+	UserIds []int  `json:"user_ids"`
+	Payload []byte `json:"payload"`
+}
+
+func (h *Hub) Broadcast(payload []byte) {
+	h.pLock.RLock()
+	defer h.pLock.RUnlock()
+
+	ids := make([]int, len(h.players))
+	i := 0
+	for k := range h.players {
+		ids[i] = k
+		i++
+	}
+
+	msg := Message{
+		Name:    "to_users",
+		UserIds: ids,
+		Payload: payload,
+	}
+	bytes, err := json.Marshal(msg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	bytes = append(bytes, '\n')
+	h.gate.Write(bytes)
 }
 
 func (h *Hub) AddPlayer(p *Player) {

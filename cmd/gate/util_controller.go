@@ -65,3 +65,27 @@ func (uh *UtilController) Direction(client bm.Client, data []byte) {
 	worker := userInfo.Worker()
 	worker.Write([]byte(fmt.Sprintf(`{"name": "direction", "user_id": %d, "payload": %s}`, client.ID(), strings.TrimSpace(string(data))) + "\n"))
 }
+
+type Message struct {
+	Name    string `json:"name"`
+	UserIds []int  `json:"user_ids"`
+	Payload []byte `json:"payload"`
+}
+
+func (uh *UtilController) ToUsers(client bm.Client, data []byte) {
+	var msg Message
+	err := json.Unmarshal(data, &msg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, uid := range msg.UserIds {
+		user, err := uh.userStore.ByID(uid)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		user.Write(msg.Payload)
+	}
+}

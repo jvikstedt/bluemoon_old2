@@ -27,6 +27,7 @@ func main() {
 	dataRouter.Register("ping", utilController.Ping)
 	dataRouter.Register("move", utilController.Move)
 	dataRouter.Register("direction", utilController.Direction)
+	dataRouter.Register("to_users", utilController.ToUsers)
 
 	hub = NewHub(dataRouter, workerStore, userStore, userInfoStore)
 
