@@ -9,15 +9,15 @@ import (
 )
 
 type Hub struct {
-	gate    bm.Client
-	players map[int]*Player
-	pLock   sync.RWMutex
+	gate  bm.Client
+	users map[int]*User
+	pLock sync.RWMutex
 }
 
 func NewHub(gate bm.Client) *Hub {
 	return &Hub{
-		gate:    gate,
-		players: make(map[int]*Player),
+		gate:  gate,
+		users: make(map[int]*User),
 	}
 }
 
@@ -51,9 +51,9 @@ func (h *Hub) Broadcast(payload []byte) {
 	h.pLock.RLock()
 	defer h.pLock.RUnlock()
 
-	ids := make([]int, len(h.players))
+	ids := make([]int, len(h.users))
 	i := 0
-	for k := range h.players {
+	for k := range h.users {
 		ids[i] = k
 		i++
 	}
@@ -73,26 +73,26 @@ func (h *Hub) Broadcast(payload []byte) {
 	h.gate.Write(bytes)
 }
 
-func (h *Hub) AddPlayer(p *Player) {
+func (h *Hub) AddUser(p *User) {
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
-	h.players[p.ID()] = p
+	h.users[p.ID()] = p
 }
 
-func (h *Hub) RemovePlayer(p *Player) {
+func (h *Hub) RemoveUser(p *User) {
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
-	delete(h.players, p.ID())
+	delete(h.users, p.ID())
 }
 
-func (h *Hub) RemovePlayerByID(id int) {
+func (h *Hub) RemoveUserByID(id int) {
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
-	delete(h.players, id)
+	delete(h.users, id)
 }
 
-func (h *Hub) PlayerByID(id int) *Player {
+func (h *Hub) UserByID(id int) *User {
 	h.pLock.RLock()
 	defer h.pLock.RUnlock()
-	return h.players[id]
+	return h.users[id]
 }

@@ -1,20 +1,15 @@
 package main
 
-import "sync"
-
-type Player struct {
-	id    int
-	pLock sync.RWMutex
+type User struct {
+	id int
 }
 
-func NewPlayer(id int) *Player {
-	return &Player{
+func NewUser(id int) *User {
+	return &User{
 		id: id,
 	}
 }
 
-func (p *Player) ID() int {
-	p.pLock.RLock()
-	defer p.pLock.RUnlock()
+func (p *User) ID() int {
 	return p.id
 }

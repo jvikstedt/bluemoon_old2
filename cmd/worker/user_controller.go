@@ -33,9 +33,9 @@ func (uc *UserController) UserJoined(client bm.Client, data []byte) {
 		fmt.Println(err)
 	}
 	fmt.Println(userEvent)
-	player := NewPlayer(userEvent.Payload.UserID)
-	uc.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": 50, "y": 50}`, player.ID())))
-	uc.hub.AddPlayer(player)
+	user := NewUser(userEvent.Payload.UserID)
+	uc.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": 50, "y": 50}`, user.ID())))
+	uc.hub.AddUser(user)
 
 	// Event based
 	userJoinedEvent := &UserJoined{
@@ -50,7 +50,7 @@ func (uc *UserController) UserLeft(client bm.Client, data []byte) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	uc.hub.RemovePlayerByID(userEvent.Payload.UserID)
+	uc.hub.RemoveUserByID(userEvent.Payload.UserID)
 }
 
 type MoveEvent struct {
