@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
-	"time"
 
 	"github.com/jvikstedt/bluemoon/bm"
 )
@@ -24,26 +23,6 @@ func NewHub(gate bm.Client) *Hub {
 
 func (h *Hub) SetGate(gate bm.Client) {
 	h.gate = gate
-}
-
-func (h *Hub) Run() {
-	last := time.Now()
-	for range time.Tick(100 * time.Millisecond) {
-		delta := time.Since(last).Seconds() + 1
-		last = time.Now()
-
-		h.updatePlayers(delta)
-	}
-}
-
-func (h *Hub) updatePlayers(delta float64) {
-	h.pLock.RLock()
-	defer h.pLock.RUnlock()
-
-	for _, p := range h.players {
-		p.Update(delta)
-		h.Broadcast([]byte(fmt.Sprintf(`{"name": "move", "id": %d, "x": %d, "y": %d}`, p.ID(), p.X(), p.Y())))
-	}
 }
 
 type Message struct {
@@ -97,22 +76,16 @@ func (h *Hub) Broadcast(payload []byte) {
 func (h *Hub) AddPlayer(p *Player) {
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
-
-	for _, v := range h.players {
-		h.BroadcastTo([]int{p.ID()}, []byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": %d, "y": %d}`, v.ID(), v.X(), v.Y())))
-	}
 	h.players[p.ID()] = p
 }
 
 func (h *Hub) RemovePlayer(p *Player) {
-	defer h.Broadcast([]byte(fmt.Sprintf(`{"name": "remove_player", "id": %d}`, p.ID())))
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
 	delete(h.players, p.ID())
 }
 
 func (h *Hub) RemovePlayerByID(id int) {
-	defer h.Broadcast([]byte(fmt.Sprintf(`{"name": "remove_player", "id": %d}`, id)))
 	h.pLock.Lock()
 	defer h.pLock.Unlock()
 	delete(h.players, id)

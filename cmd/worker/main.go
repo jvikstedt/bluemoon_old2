@@ -13,6 +13,7 @@ type DN struct {
 }
 
 func main() {
+
 	sClient := socket.NewClient()
 	conn, err := sClient.Connect("gate:5000")
 	if err != nil {
@@ -23,7 +24,8 @@ func main() {
 	defer cw.Close()
 
 	hub := NewHub(nil)
-	userController := NewUserController(hub)
+	room := NewRoom(hub)
+	userController := NewUserController(hub, room)
 
 	dataRouter := bm.NewDataRouter()
 	dataRouter.Register("user_joined", userController.UserJoined)
@@ -49,6 +51,5 @@ func main() {
 
 	go gate.EnableReader()
 	go gate.EnableWriter()
-
-	hub.Run()
+	room.Run()
 }

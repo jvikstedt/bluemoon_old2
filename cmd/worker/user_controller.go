@@ -8,12 +8,14 @@ import (
 )
 
 type UserController struct {
-	hub *Hub
+	hub  *Hub
+	room *Room
 }
 
-func NewUserController(hub *Hub) *UserController {
+func NewUserController(hub *Hub, room *Room) *UserController {
 	return &UserController{
-		hub: hub,
+		hub:  hub,
+		room: room,
 	}
 }
 
@@ -31,10 +33,15 @@ func (uc *UserController) UserJoined(client bm.Client, data []byte) {
 		fmt.Println(err)
 	}
 	fmt.Println(userEvent)
-	player := NewPlayer(userEvent.Payload.UserID, 50, 50)
+	player := NewPlayer(userEvent.Payload.UserID)
+	uc.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": 50, "y": 50}`, player.ID())))
 	uc.hub.AddPlayer(player)
 
-	uc.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": 50, "y": 50}`, player.ID())))
+	// Event based
+	userJoinedEvent := &UserJoined{
+		ID: userEvent.Payload.UserID,
+	}
+	uc.room.AddEvent(userJoinedEvent)
 }
 
 func (uc *UserController) UserLeft(client bm.Client, data []byte) {
@@ -61,15 +68,12 @@ func (uc *UserController) Direction(client bm.Client, data []byte) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	player := uc.hub.PlayerByID(moveEvent.UserID)
-	if player == nil {
-		fmt.Printf("Player nil: %d\n", moveEvent.UserID)
-		return
-	}
 
-	if moveEvent.Payload.Axis == "x" {
-		player.SetXDir(moveEvent.Payload.Val)
-	} else if moveEvent.Payload.Axis == "y" {
-		player.SetYDir(moveEvent.Payload.Val)
+	// Event based
+	changeDirEvent := &ChangeDir{
+		ID:   moveEvent.UserID,
+		Axis: moveEvent.Payload.Axis,
+		Val:  moveEvent.Payload.Val,
 	}
+	uc.room.AddEvent(changeDirEvent)
 }
