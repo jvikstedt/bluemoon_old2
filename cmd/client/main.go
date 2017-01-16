@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/jvikstedt/bluemoon/bm"
-	"github.com/jvikstedt/bluemoon/socket"
-	"github.com/jvikstedt/bluemoon/ws"
+	"github.com/jvikstedt/bluemoon/net/socket"
+	"github.com/jvikstedt/bluemoon/net/ws"
 )
 
 var protocols = map[int]string{

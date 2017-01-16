@@ -8,9 +8,9 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/jvikstedt/bluemoon/bm"
-	"github.com/jvikstedt/bluemoon/socket"
+	"github.com/jvikstedt/bluemoon/net/socket"
+	"github.com/jvikstedt/bluemoon/net/ws"
 	"github.com/jvikstedt/bluemoon/store"
-	"github.com/jvikstedt/bluemoon/ws"
 )
 
 var hub *Hub

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jvikstedt/bluemoon/bm"
-	"github.com/jvikstedt/bluemoon/socket"
+	"github.com/jvikstedt/bluemoon/net/socket"
 )
 
 type DN struct {
