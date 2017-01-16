@@ -1,6 +1,4 @@
-package main
-
-import "fmt"
+package entity
 
 type PlayerEntity struct {
 	id    int
@@ -9,6 +7,17 @@ type PlayerEntity struct {
 	xDir  int
 	yDir  int
 	speed float64
+}
+
+func NewPlayerEntity(id, x, y, xdir, ydir int, speed float64) *PlayerEntity {
+	return &PlayerEntity{
+		id:    id,
+		x:     x,
+		y:     y,
+		xDir:  xdir,
+		yDir:  ydir,
+		speed: speed,
+	}
 }
 
 func (pe *PlayerEntity) Update(delta float64) (bool, error) {
@@ -35,16 +44,4 @@ func (pe *PlayerEntity) SetXDir(dir int) {
 
 func (pe *PlayerEntity) SetYDir(dir int) {
 	pe.yDir = dir
-}
-
-type UserJoined struct {
-	ID int
-}
-
-func (uj *UserJoined) Execute(room *Room) error {
-	room.AddEntity(&PlayerEntity{id: uj.ID, x: 50, y: 50, speed: 4})
-	for _, v := range room.entities {
-		room.hub.BroadcastTo([]int{uj.ID}, []byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": %d, "y": %d}`, v.ID(), v.X(), v.Y())))
-	}
-	return nil
 }

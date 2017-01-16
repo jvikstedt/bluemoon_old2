@@ -1,4 +1,4 @@
-package main
+package room
 
 import (
 	"encoding/json"

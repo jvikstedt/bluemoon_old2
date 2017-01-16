@@ -1,4 +1,4 @@
-package main
+package room
 
 type User struct {
 	id int

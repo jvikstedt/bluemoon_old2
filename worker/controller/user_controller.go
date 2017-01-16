@@ -1,18 +1,20 @@
-package main
+package controller
 
 import (
 	"encoding/json"
 	"fmt"
 
 	"github.com/jvikstedt/bluemoon/bm"
+	"github.com/jvikstedt/bluemoon/worker/event"
+	"github.com/jvikstedt/bluemoon/worker/room"
 )
 
 type UserController struct {
-	hub  *Hub
-	room *Room
+	hub  *room.Hub
+	room *room.Room
 }
 
-func NewUserController(hub *Hub, room *Room) *UserController {
+func NewUserController(hub *room.Hub, room *room.Room) *UserController {
 	return &UserController{
 		hub:  hub,
 		room: room,
@@ -33,12 +35,12 @@ func (uc *UserController) UserJoined(client bm.Client, data []byte) {
 		fmt.Println(err)
 	}
 	fmt.Println(userEvent)
-	user := NewUser(userEvent.Payload.UserID)
+	user := room.NewUser(userEvent.Payload.UserID)
 	uc.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": 50, "y": 50}`, user.ID())))
 	uc.hub.AddUser(user)
 
 	// Event based
-	userJoinedEvent := &UserJoined{
+	userJoinedEvent := &event.UserJoined{
 		ID: userEvent.Payload.UserID,
 	}
 	uc.room.AddEvent(userJoinedEvent)
@@ -70,7 +72,7 @@ func (uc *UserController) Direction(client bm.Client, data []byte) {
 	}
 
 	// Event based
-	changeDirEvent := &ChangeDir{
+	changeDirEvent := &event.ChangeDir{
 		ID:   moveEvent.UserID,
 		Axis: moveEvent.Payload.Axis,
 		Val:  moveEvent.Payload.Val,

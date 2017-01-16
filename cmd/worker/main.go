@@ -6,6 +6,8 @@ import (
 
 	"github.com/jvikstedt/bluemoon/bm"
 	"github.com/jvikstedt/bluemoon/net/socket"
+	"github.com/jvikstedt/bluemoon/worker/controller"
+	"github.com/jvikstedt/bluemoon/worker/room"
 )
 
 type DN struct {
@@ -23,9 +25,9 @@ func main() {
 	cw := socket.NewConnectionWrapper(conn)
 	defer cw.Close()
 
-	hub := NewHub(nil)
-	room := NewRoom(hub)
-	userController := NewUserController(hub, room)
+	hub := room.NewHub(nil)
+	room := room.NewRoom(hub)
+	userController := controller.NewUserController(hub, room)
 
 	dataRouter := bm.NewDataRouter()
 	dataRouter.Register("user_joined", userController.UserJoined)

@@ -1,4 +1,4 @@
-package main
+package room
 
 import (
 	"fmt"
@@ -68,6 +68,14 @@ func (r *Room) AddEntity(e Entity) {
 
 func (r *Room) EntityById(id int) Entity {
 	return r.entities[id]
+}
+
+func (r *Room) Entities() map[int]Entity {
+	return r.entities
+}
+
+func (r *Room) Hub() *Hub {
+	return r.hub
 }
 
 func (r *Room) RemoveEntity(e Entity) {
