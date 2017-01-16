@@ -8,19 +8,20 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/jvikstedt/bluemoon/bm"
+	"github.com/jvikstedt/bluemoon/gate"
 	"github.com/jvikstedt/bluemoon/net/socket"
 	"github.com/jvikstedt/bluemoon/net/ws"
 	"github.com/jvikstedt/bluemoon/store"
 )
 
-var hub *Hub
+var hub *gate.Hub
 
 func main() {
 	workerStore := store.NewClientStore()
 	userStore := store.NewClientStore()
 	userInfoStore := store.NewUserInfoStore()
 
-	utilController := NewUtilController(userInfoStore, userStore)
+	utilController := gate.NewUtilController(userInfoStore, userStore)
 
 	dataRouter := bm.NewDataRouter()
 	dataRouter.Register("quit", utilController.Quit)
@@ -29,7 +30,7 @@ func main() {
 	dataRouter.Register("direction", utilController.Direction)
 	dataRouter.Register("to_users", utilController.ToUsers)
 
-	hub = NewHub(dataRouter, workerStore, userStore, userInfoStore)
+	hub = gate.NewHub(dataRouter, workerStore, userStore, userInfoStore)
 
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")
