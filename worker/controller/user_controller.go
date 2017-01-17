@@ -53,6 +53,12 @@ func (uc *UserController) UserLeft(client bm.Client, data []byte) {
 		fmt.Println(err)
 	}
 	uc.hub.RemoveUserByID(userEvent.Payload.UserID)
+
+	// Event based
+	userLeftEvent := &event.UserLeft{
+		ID: userEvent.Payload.UserID,
+	}
+	uc.room.AddEvent(userLeftEvent)
 }
 
 type MoveEvent struct {
