@@ -1,4 +1,4 @@
-package room
+package worker
 
 type User struct {
 	id int

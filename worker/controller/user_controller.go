@@ -5,16 +5,16 @@ import (
 	"fmt"
 
 	"github.com/jvikstedt/bluemoon/bm"
+	"github.com/jvikstedt/bluemoon/worker"
 	"github.com/jvikstedt/bluemoon/worker/event"
-	"github.com/jvikstedt/bluemoon/worker/room"
 )
 
 type UserController struct {
-	hub  *room.Hub
-	room *room.Room
+	hub  *worker.Hub
+	room *worker.Room
 }
 
-func NewUserController(hub *room.Hub, room *room.Room) *UserController {
+func NewUserController(hub *worker.Hub, room *worker.Room) *UserController {
 	return &UserController{
 		hub:  hub,
 		room: room,
@@ -35,7 +35,7 @@ func (uc *UserController) UserJoined(client bm.Client, data []byte) {
 		fmt.Println(err)
 	}
 	fmt.Println(userEvent)
-	user := room.NewUser(userEvent.Payload.UserID)
+	user := worker.NewUser(userEvent.Payload.UserID)
 	uc.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": 50, "y": 50}`, user.ID())))
 	uc.hub.AddUser(user)
 
