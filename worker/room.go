@@ -9,6 +9,7 @@ type Entity interface {
 
 type Room interface {
 	AddEvent(e Event)
+	ID() int
 }
 
 type Event interface {
