@@ -10,6 +10,7 @@ import (
 
 type Game struct {
 	log      bm.Logger
+	id       int
 	hub      *worker.Hub
 	running  bool
 	entities map[int]worker.Entity
@@ -17,9 +18,10 @@ type Game struct {
 	users    map[int]*worker.User
 }
 
-func NewGame(log bm.Logger, hub *worker.Hub) *Game {
+func NewGame(log bm.Logger, id int, hub *worker.Hub) *Game {
 	return &Game{
 		log:      log,
+		id:       id,
 		hub:      hub,
 		running:  true,
 		entities: make(map[int]worker.Entity),
@@ -29,7 +31,11 @@ func NewGame(log bm.Logger, hub *worker.Hub) *Game {
 }
 
 func (r *Game) ID() int {
-	return 1
+	return r.id
+}
+
+func (r *Game) Type() string {
+	return "game"
 }
 
 func (r *Game) Run() {

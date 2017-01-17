@@ -30,7 +30,7 @@ func main() {
 	defer cw.Close()
 
 	hub := worker.NewHub(nil)
-	room := room.NewGame(log, hub)
+	room := room.NewGame(log, 1, hub)
 	userController := controller.NewUserController(hub, room)
 
 	dataRouter := bm.NewDataRouter()
