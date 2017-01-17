@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/jvikstedt/bluemoon/bm"
+	"github.com/jvikstedt/bluemoon/logger"
 	"github.com/jvikstedt/bluemoon/net/socket"
 	"github.com/jvikstedt/bluemoon/worker"
 	"github.com/jvikstedt/bluemoon/worker/controller"
@@ -15,6 +17,7 @@ type DN struct {
 }
 
 func main() {
+	log := logger.NewLogrusLogger(os.Stdout, logger.DebugLevel)
 
 	sClient := socket.NewClient()
 	conn, err := sClient.Connect("gate:5000")
@@ -26,7 +29,7 @@ func main() {
 	defer cw.Close()
 
 	hub := worker.NewHub(nil)
-	room := worker.NewRoom(hub)
+	room := worker.NewRoom(log, hub)
 	userController := controller.NewUserController(hub, room)
 
 	dataRouter := bm.NewDataRouter()

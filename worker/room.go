@@ -3,6 +3,8 @@ package worker
 import (
 	"fmt"
 	"time"
+
+	"github.com/jvikstedt/bluemoon/bm"
 )
 
 type Entity interface {
@@ -17,6 +19,7 @@ type Event interface {
 }
 
 type Room struct {
+	log      bm.Logger
 	hub      *Hub
 	running  bool
 	entities map[int]Entity
@@ -24,8 +27,9 @@ type Room struct {
 	users    map[int]*User
 }
 
-func NewRoom(hub *Hub) *Room {
+func NewRoom(log bm.Logger, hub *Hub) *Room {
 	return &Room{
+		log:      log,
 		hub:      hub,
 		running:  true,
 		entities: make(map[int]Entity),
@@ -57,7 +61,7 @@ func (r *Room) Run() {
 		case e := <-r.eventCh:
 			err := e.Execute(r)
 			if err != nil {
-				fmt.Printf("Error while executing event: %s\n", err.Error())
+				r.log.Warnln(err)
 			}
 		}
 	}

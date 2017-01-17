@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net"
 	"net/http"
 
@@ -37,7 +36,7 @@ func main() {
 
 	wsServer := ws.NewServer(manageWSConn)
 	http.Handle("/", wsServer)
-	log.Fatal(http.ListenAndServe(":4000", nil))
+	http.ListenAndServe(":4000", nil)
 }
 
 func manageConn(conn *net.TCPConn) error {
