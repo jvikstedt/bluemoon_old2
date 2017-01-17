@@ -9,9 +9,9 @@ import (
 
 	"github.com/jvikstedt/bluemoon/bm"
 	"github.com/jvikstedt/bluemoon/gate"
+	"github.com/jvikstedt/bluemoon/gate/store"
 	"github.com/jvikstedt/bluemoon/net/socket"
 	"github.com/jvikstedt/bluemoon/net/ws"
-	"github.com/jvikstedt/bluemoon/store"
 )
 
 var hub *gate.Hub

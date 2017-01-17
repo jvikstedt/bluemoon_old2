@@ -9,11 +9,11 @@ import (
 )
 
 type UtilController struct {
-	uis       bm.UserInfoStore
-	userStore bm.ClientStore
+	uis       UserInfoStore
+	userStore ClientStore
 }
 
-func NewUtilController(uis bm.UserInfoStore, userStore bm.ClientStore) *UtilController {
+func NewUtilController(uis UserInfoStore, userStore ClientStore) *UtilController {
 	return &UtilController{
 		uis:       uis,
 		userStore: userStore,

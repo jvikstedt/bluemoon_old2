@@ -9,12 +9,12 @@ import (
 
 type Hub struct {
 	dataRouter    *bm.DataRouter
-	workerStore   bm.ClientStore
-	userStore     bm.ClientStore
-	userInfoStore bm.UserInfoStore
+	workerStore   ClientStore
+	userStore     ClientStore
+	userInfoStore UserInfoStore
 }
 
-func NewHub(dr *bm.DataRouter, ws bm.ClientStore, us bm.ClientStore, uis bm.UserInfoStore) *Hub {
+func NewHub(dr *bm.DataRouter, ws ClientStore, us ClientStore, uis UserInfoStore) *Hub {
 	return &Hub{
 		dataRouter:    dr,
 		workerStore:   ws,
@@ -56,7 +56,7 @@ func (h *Hub) ManageWorkerConn(rw bm.ReadWriter) error {
 }
 
 func (h *Hub) buildUserInfo(client bm.Client, worker bm.Client) {
-	ui := &bm.UserInfo{}
+	ui := &UserInfo{}
 	ui.SetWorker(worker)
 	h.userInfoStore.Add(client.ID(), ui)
 }

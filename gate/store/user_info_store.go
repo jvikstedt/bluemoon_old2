@@ -4,21 +4,21 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/jvikstedt/bluemoon/bm"
+	"github.com/jvikstedt/bluemoon/gate"
 )
 
 type UserInfoStore struct {
-	userInfos map[int]*bm.UserInfo
+	userInfos map[int]*gate.UserInfo
 	uilock    sync.RWMutex
 }
 
 func NewUserInfoStore() *UserInfoStore {
 	return &UserInfoStore{
-		userInfos: make(map[int]*bm.UserInfo),
+		userInfos: make(map[int]*gate.UserInfo),
 	}
 }
 
-func (uis *UserInfoStore) ByID(id int) (*bm.UserInfo, error) {
+func (uis *UserInfoStore) ByID(id int) (*gate.UserInfo, error) {
 	uis.uilock.RLock()
 	defer uis.uilock.RUnlock()
 	if ui, ok := uis.userInfos[id]; ok {
@@ -27,7 +27,7 @@ func (uis *UserInfoStore) ByID(id int) (*bm.UserInfo, error) {
 	return nil, fmt.Errorf("No UserInfo found with an id of: %d", id)
 }
 
-func (uis *UserInfoStore) Add(id int, ui *bm.UserInfo) {
+func (uis *UserInfoStore) Add(id int, ui *gate.UserInfo) {
 	uis.uilock.Lock()
 	defer uis.uilock.Unlock()
 	uis.userInfos[id] = ui

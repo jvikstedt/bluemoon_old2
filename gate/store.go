@@ -1,7 +1,9 @@
-package bm
+package gate
 
 import (
 	"sync"
+
+	"github.com/jvikstedt/bluemoon/bm"
 )
 
 type UserInfoStore interface {
@@ -10,24 +12,24 @@ type UserInfoStore interface {
 }
 
 type ClientStore interface {
-	Add(user Client) error
-	Remove(user Client) error
-	ByID(id int) (Client, error)
-	One() (Client, error)
+	Add(user bm.Client) error
+	Remove(user bm.Client) error
+	ByID(id int) (bm.Client, error)
+	One() (bm.Client, error)
 }
 
 type UserInfo struct {
-	worker Client
+	worker bm.Client
 	wlock  sync.RWMutex
 }
 
-func (uf *UserInfo) Worker() Client {
+func (uf *UserInfo) Worker() bm.Client {
 	uf.wlock.RLock()
 	defer uf.wlock.RUnlock()
 	return uf.worker
 }
 
-func (uf *UserInfo) SetWorker(worker Client) {
+func (uf *UserInfo) SetWorker(worker bm.Client) {
 	uf.wlock.Lock()
 	defer uf.wlock.Unlock()
 	uf.worker = worker
