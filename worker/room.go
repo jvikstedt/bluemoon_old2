@@ -53,7 +53,10 @@ func (r *Room) Run() {
 			last = time.Now()
 
 			for _, v := range r.entities {
-				changed, _ := v.Update(delta)
+				changed, err := v.Update(delta)
+				if err != nil {
+					r.log.Warnln(fmt.Sprintf("Error while executing a entity Update: %s", err.Error()))
+				}
 				if changed {
 					r.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "move", "id": %d, "x": %d, "y": %d}`, v.ID(), v.X(), v.Y())))
 				}
@@ -61,7 +64,7 @@ func (r *Room) Run() {
 		case e := <-r.eventCh:
 			err := e.Execute(r)
 			if err != nil {
-				r.log.Warnln(err)
+				r.log.Warnln(fmt.Sprintf("Error while executing a event: %s", err.Error()))
 			}
 		}
 	}
