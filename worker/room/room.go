@@ -53,7 +53,10 @@ func (r *Room) Run() {
 				}
 			}
 		case e := <-r.eventCh:
-			e.Execute(r)
+			err := e.Execute(r)
+			if err != nil {
+				fmt.Printf("Error while executing event: %s\n", err.Error())
+			}
 		}
 	}
 }
