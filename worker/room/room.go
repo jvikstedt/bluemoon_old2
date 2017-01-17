@@ -21,6 +21,7 @@ type Room struct {
 	running  bool
 	entities map[int]Entity
 	eventCh  chan Event
+	users    map[int]*User
 }
 
 func NewRoom(hub *Hub) *Room {
@@ -29,6 +30,7 @@ func NewRoom(hub *Hub) *Room {
 		running:  true,
 		entities: make(map[int]Entity),
 		eventCh:  make(chan Event, 20),
+		users:    make(map[int]*User),
 	}
 }
 
@@ -61,6 +63,21 @@ func (r *Room) Run() {
 	}
 }
 
+func (r *Room) Broadcast(data []byte) {
+	ids := make([]int, len(r.users))
+	i := 0
+	for k := range r.users {
+		ids[i] = k
+		i++
+	}
+
+	r.hub.BroadcastTo(ids, data)
+}
+
+func (r *Room) BroadcastTo(userIds []int, payload []byte) {
+	r.hub.BroadcastTo(userIds, payload)
+}
+
 func (r *Room) AddEvent(e Event) {
 	r.eventCh <- e
 }
@@ -77,10 +94,22 @@ func (r *Room) Entities() map[int]Entity {
 	return r.entities
 }
 
-func (r *Room) Hub() *Hub {
-	return r.hub
-}
-
 func (r *Room) RemoveEntity(e Entity) {
 	delete(r.entities, e.ID())
+}
+
+func (r *Room) RemoveEntityByID(id int) {
+	delete(r.entities, id)
+}
+
+func (r *Room) AddUser(u *User) {
+	r.users[u.ID()] = u
+}
+
+func (r *Room) RemoveUser(u *User) {
+	delete(r.users, u.ID())
+}
+
+func (r *Room) RemoveUserByID(id int) {
+	delete(r.users, id)
 }
