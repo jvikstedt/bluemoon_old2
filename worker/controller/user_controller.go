@@ -11,10 +11,10 @@ import (
 
 type UserController struct {
 	hub  *worker.Hub
-	room *worker.Room
+	room worker.Room
 }
 
-func NewUserController(hub *worker.Hub, room *worker.Room) *UserController {
+func NewUserController(hub *worker.Hub, room worker.Room) *UserController {
 	return &UserController{
 		hub:  hub,
 		room: room,

@@ -10,6 +10,7 @@ import (
 	"github.com/jvikstedt/bluemoon/net/socket"
 	"github.com/jvikstedt/bluemoon/worker"
 	"github.com/jvikstedt/bluemoon/worker/controller"
+	"github.com/jvikstedt/bluemoon/worker/room"
 )
 
 type DN struct {
@@ -29,7 +30,7 @@ func main() {
 	defer cw.Close()
 
 	hub := worker.NewHub(nil)
-	room := worker.NewRoom(log, hub)
+	room := room.NewGame(log, hub)
 	userController := controller.NewUserController(hub, room)
 
 	dataRouter := bm.NewDataRouter()
