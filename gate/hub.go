@@ -52,12 +52,7 @@ func (h *Hub) ManageWorkerConn(rw bm.ReadWriter) error {
 					fmt.Println(err)
 					return
 				}
-				bytes, err := workerData.Payload.MarshalJSON()
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				user.Write(bytes)
+				user.Write(*workerData.Payload)
 			}
 		}
 	})
