@@ -6,8 +6,9 @@ import (
 )
 
 type DataRouter struct {
-	handlers map[string]HandleClientDataFunc
-	hlock    sync.RWMutex
+	handlers     map[string]HandleClientDataFunc
+	defaultRoute HandleClientDataFunc
+	hlock        sync.RWMutex
 }
 
 func NewDataRouter() *DataRouter {
@@ -41,5 +42,15 @@ func (dr *DataRouter) Handler(name string) (HandleClientDataFunc, error) {
 	if h, ok := dr.handlers[name]; ok {
 		return h, nil
 	}
+	if dr.defaultRoute != nil {
+		return dr.defaultRoute, nil
+	}
 	return nil, fmt.Errorf("Could not find handler with a name: %s", name)
+}
+
+func (dr *DataRouter) SetDefaultHandler(handler HandleClientDataFunc) {
+	dr.hlock.Lock()
+	defer dr.hlock.Unlock()
+
+	dr.defaultRoute = handler
 }

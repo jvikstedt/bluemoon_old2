@@ -13,10 +13,6 @@ import (
 	"github.com/jvikstedt/bluemoon/worker/room"
 )
 
-type DN struct {
-	Name string `json:"name"`
-}
-
 func main() {
 	log := logger.NewLogrusLogger(os.Stdout, logger.DebugLevel)
 
@@ -31,28 +27,33 @@ func main() {
 
 	hub := worker.NewHub(nil)
 	room := room.NewGame(log, 1, hub)
+
 	userController := controller.NewUserController(hub, room)
 
-	dataRouter := bm.NewDataRouter()
-	dataRouter.Register("user_joined", userController.UserJoined)
-	dataRouter.Register("user_left", userController.UserLeft)
-	dataRouter.Register("FromUser", userController.FromUser)
+	userRouter := bm.NewDataRouter()
+	userRouter.Register("change_dir", userController.ChangeDir)
+
+	gateController := controller.NewGateController(hub, room, userRouter)
+	gateRouter := bm.NewDataRouter()
+	gateRouter.Register("user_joined", gateController.UserJoined)
+	gateRouter.Register("user_left", gateController.UserLeft)
+	gateRouter.Register("from_user", gateController.FromUser)
 
 	gate := bm.NewBaseClient(1, cw, func(client bm.Client, data []byte) {
 		fmt.Printf("New message from gate: %d\n", client.ID())
 		fmt.Print(string(data))
-		var dn DN
-		err := json.Unmarshal(data, &dn)
+		var gateIn worker.GateIn
+		err := json.Unmarshal(data, &gateIn)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		handle, err := dataRouter.Handler(dn.Name)
+		handle, err := gateRouter.Handler(gateIn.Name)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		handle(client, data)
+		handle(client, *gateIn.Payload)
 	})
 
 	hub.SetGate(gate)

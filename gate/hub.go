@@ -82,51 +82,18 @@ func (h *Hub) userQuit(client bm.Client) {
 	}
 }
 
-type UserData struct {
-	Name    string           `json:"name"`
-	UserID  int              `json:"user_id"`
-	Payload *json.RawMessage `json:"payload"`
-}
-
-type ToWorkerData struct {
-	Name   string `json:"name"`
-	UserID int    `json:"user_id"`
-	Action struct {
-		Name    string           `json:"name"`
-		Payload *json.RawMessage `json:"payload"`
-	}
-}
-
 func (h *Hub) ManageUserConn(rw bm.ReadWriter) error {
 	u := bm.NewBaseClient(idgen.Next(), rw, func(client bm.Client, data []byte) {
 		fmt.Printf("New message from user: %d\n", client.ID())
 		fmt.Print(string(data))
-		var userData UserData
-		err := json.Unmarshal(data, &userData)
+		var userIn UserIn
+		err := json.Unmarshal(data, &userIn)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		if handle, err := h.userRouter.Handler(userData.Name); err == nil {
-			handle(client, data)
-		} else {
-			handle, err = h.userRouter.Handler("ToWorker")
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			var toWorker ToWorkerData
-			toWorker.Name = "FromUser"
-			toWorker.UserID = client.ID()
-			toWorker.Action.Name = userData.Name
-			toWorker.Action.Payload = userData.Payload
-			bytes, err := json.Marshal(toWorker)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			handle(client, bytes)
-		}
+		handle, err := h.userRouter.Handler(userIn.Name)
+		handle(client, data)
 	})
 
 	worker, err := h.workerStore.One()

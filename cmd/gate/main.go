@@ -26,7 +26,7 @@ func main() {
 	userRouter := bm.NewDataRouter()
 	workerRouter := bm.NewDataRouter()
 
-	userRouter.Register("ToWorker", userController.ToWorker)
+	userRouter.SetDefaultHandler(userController.ToWorker)
 
 	hub = gate.NewHub(userRouter, workerRouter, workerStore, userStore, userInfoStore)
 
