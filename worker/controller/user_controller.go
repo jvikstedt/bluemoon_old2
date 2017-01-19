@@ -36,7 +36,13 @@ func (uc *UserController) UserJoined(client bm.Client, data []byte) {
 	}
 	fmt.Println(userEvent)
 	user := worker.NewUser(userEvent.Payload.UserID)
-	uc.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "new_player", "id": %d, "x": 50, "y": 50}`, user.ID())))
+
+	uc.hub.Broadcast(struct {
+		Name string `json:"name"`
+		ID   int    `json:"id"`
+		X    int    `json:"x"`
+		Y    int    `json:"y"`
+	}{"new_player", user.ID(), 50, 50})
 	uc.hub.AddUser(user)
 
 	// Event based
@@ -61,27 +67,30 @@ func (uc *UserController) UserLeft(client bm.Client, data []byte) {
 	uc.room.AddEvent(userLeftEvent)
 }
 
-type MoveEvent struct {
-	Name    string `json:"name"`
-	UserID  int    `json:"user_id"`
-	Payload struct {
-		Axis string `json:"axis"`
-		Val  int    `json:"val"`
-	} `json:"payload"`
+type UserData struct {
+	UserID int `json:"user_id"`
+	Action struct {
+		Name    string `json:"name"`
+		Payload struct {
+			Axis string `json:"axis"`
+			Val  int    `json:"val"`
+		} `json:"payload"`
+	}
 }
 
-func (uc *UserController) Direction(client bm.Client, data []byte) {
-	var moveEvent MoveEvent
-	err := json.Unmarshal(data, &moveEvent)
+func (uc *UserController) FromUser(client bm.Client, data []byte) {
+	var userData UserData
+	err := json.Unmarshal(data, &userData)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// Event based
-	changeDirEvent := &event.ChangeDir{
-		ID:   moveEvent.UserID,
-		Axis: moveEvent.Payload.Axis,
-		Val:  moveEvent.Payload.Val,
+	if userData.Action.Name == "change_dir" {
+		changeDirEvent := &event.ChangeDir{
+			ID:   userData.UserID,
+			Axis: userData.Action.Payload.Axis,
+			Val:  userData.Action.Payload.Val,
+		}
+		uc.room.AddEvent(changeDirEvent)
 	}
-	uc.room.AddEvent(changeDirEvent)
 }

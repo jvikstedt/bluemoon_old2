@@ -54,7 +54,12 @@ func (r *Game) Run() {
 					r.log.Warnln(fmt.Sprintf("Error while executing a entity Update: %s", err.Error()))
 				}
 				if changed {
-					r.hub.Broadcast([]byte(fmt.Sprintf(`{"name": "move", "id": %d, "x": %d, "y": %d}`, v.ID(), v.X(), v.Y())))
+					r.Broadcast(struct {
+						Name string `json:"name"`
+						ID   int    `json:"id"`
+						X    int    `json:"x"`
+						Y    int    `json:"y"`
+					}{"move", v.ID(), v.X(), v.Y()})
 				}
 			}
 		case e := <-r.eventCh:
@@ -66,7 +71,7 @@ func (r *Game) Run() {
 	}
 }
 
-func (r *Game) Broadcast(data []byte) {
+func (r *Game) Broadcast(data interface{}) {
 	ids := make([]int, len(r.users))
 	i := 0
 	for k := range r.users {
@@ -77,7 +82,7 @@ func (r *Game) Broadcast(data []byte) {
 	r.hub.BroadcastTo(ids, data)
 }
 
-func (r *Game) BroadcastTo(userIds []int, payload []byte) {
+func (r *Game) BroadcastTo(userIds []int, payload interface{}) {
 	r.hub.BroadcastTo(userIds, payload)
 }
 

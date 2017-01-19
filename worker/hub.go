@@ -26,12 +26,12 @@ func (h *Hub) SetGate(gate bm.Client) {
 }
 
 type Message struct {
-	Name    string `json:"name"`
-	UserIds []int  `json:"user_ids"`
-	Payload []byte `json:"payload"`
+	Name    string      `json:"name"`
+	UserIds []int       `json:"user_ids"`
+	Payload interface{} `json:"payload"`
 }
 
-func (h *Hub) BroadcastTo(userIds []int, payload []byte) {
+func (h *Hub) BroadcastTo(userIds []int, payload interface{}) {
 	msg := Message{
 		Name:    "to_users",
 		UserIds: userIds,
@@ -47,7 +47,7 @@ func (h *Hub) BroadcastTo(userIds []int, payload []byte) {
 	h.gate.Write(bytes)
 }
 
-func (h *Hub) Broadcast(payload []byte) {
+func (h *Hub) Broadcast(payload interface{}) {
 	h.pLock.RLock()
 	defer h.pLock.RUnlock()
 

@@ -18,6 +18,9 @@ func (uj *UserLeft) Execute(r worker.Room) error {
 	}
 	game.RemoveUserByID(uj.ID)
 	game.RemoveEntityByID(uj.ID)
-	game.Broadcast([]byte(fmt.Sprintf(`{"name": "remove_player", "id": %d}`, uj.ID)))
+	game.Broadcast(struct {
+		Name string `json:"name"`
+		ID   int    `json:"id"`
+	}{"remove_player", uj.ID})
 	return nil
 }

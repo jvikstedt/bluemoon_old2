@@ -8,6 +8,7 @@ import (
 
 	"github.com/jvikstedt/bluemoon/bm"
 	"github.com/jvikstedt/bluemoon/gate"
+	"github.com/jvikstedt/bluemoon/gate/controller"
 	"github.com/jvikstedt/bluemoon/gate/store"
 	"github.com/jvikstedt/bluemoon/net/socket"
 	"github.com/jvikstedt/bluemoon/net/ws"
@@ -20,16 +21,14 @@ func main() {
 	userStore := store.NewClientStore()
 	userInfoStore := store.NewUserInfoStore()
 
-	utilController := gate.NewUtilController(userInfoStore, userStore)
+	userController := controller.NewUserController(userInfoStore, userStore)
 
-	dataRouter := bm.NewDataRouter()
-	dataRouter.Register("quit", utilController.Quit)
-	dataRouter.Register("ping", utilController.Ping)
-	dataRouter.Register("move", utilController.Move)
-	dataRouter.Register("direction", utilController.Direction)
-	dataRouter.Register("to_users", utilController.ToUsers)
+	userRouter := bm.NewDataRouter()
+	workerRouter := bm.NewDataRouter()
 
-	hub = gate.NewHub(dataRouter, workerStore, userStore, userInfoStore)
+	userRouter.Register("ToWorker", userController.ToWorker)
+
+	hub = gate.NewHub(userRouter, workerRouter, workerStore, userStore, userInfoStore)
 
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")

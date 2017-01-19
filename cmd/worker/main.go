@@ -36,9 +36,11 @@ func main() {
 	dataRouter := bm.NewDataRouter()
 	dataRouter.Register("user_joined", userController.UserJoined)
 	dataRouter.Register("user_left", userController.UserLeft)
-	dataRouter.Register("direction", userController.Direction)
+	dataRouter.Register("FromUser", userController.FromUser)
 
 	gate := bm.NewBaseClient(1, cw, func(client bm.Client, data []byte) {
+		fmt.Printf("New message from gate: %d\n", client.ID())
+		fmt.Print(string(data))
 		var dn DN
 		err := json.Unmarshal(data, &dn)
 		if err != nil {
