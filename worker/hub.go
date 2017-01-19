@@ -32,12 +32,14 @@ type Message struct {
 }
 
 func (h *Hub) BroadcastTo(userIds []int, payload interface{}) {
-	msg := Message{
-		Name:    "to_users",
-		UserIds: userIds,
-		Payload: payload,
+	gateOut := GateOut{
+		Name: "to_users",
+		Payload: ToUsers{
+			UserIds: userIds,
+			Payload: payload,
+		},
 	}
-	bytes, err := json.Marshal(msg)
+	bytes, err := json.Marshal(gateOut)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -58,19 +60,7 @@ func (h *Hub) Broadcast(payload interface{}) {
 		i++
 	}
 
-	msg := Message{
-		Name:    "to_users",
-		UserIds: ids,
-		Payload: payload,
-	}
-	bytes, err := json.Marshal(msg)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	bytes = append(bytes, '\n')
-	h.gate.Write(bytes)
+	h.BroadcastTo(ids, payload)
 }
 
 func (h *Hub) AddUser(p *User) {

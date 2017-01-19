@@ -27,34 +27,22 @@ func NewHub(userRouter *bm.DataRouter, workerRouter *bm.DataRouter, ws ClientSto
 
 var idgen = bm.NewIDGen()
 
-type WorkerData struct {
-	Name    string           `json:"name"`
-	UserIds []int            `json:"user_ids"`
-	Payload *json.RawMessage `json:"payload"`
-}
-
 func (h *Hub) ManageWorkerConn(rw bm.ReadWriter) error {
 	w := bm.NewBaseClient(idgen.Next(), rw, func(client bm.Client, data []byte) {
 		fmt.Printf("New message from worker: %d\n", client.ID())
 		fmt.Print(string(data))
-		var workerData WorkerData
-		err := json.Unmarshal(data, &workerData)
+		var workerIn WorkerIn
+		err := json.Unmarshal(data, &workerIn)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		if handle, err := h.workerRouter.Handler(workerData.Name); err == nil {
-			handle(client, data)
-		} else {
-			for _, userID := range workerData.UserIds {
-				user, err := h.userStore.ByID(userID)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				user.Write(*workerData.Payload)
-			}
+		handle, err := h.workerRouter.Handler(workerIn.Name)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
+		handle(client, *workerIn.Payload)
 	})
 	h.workerStore.Add(w)
 	defer h.workerStore.Remove(w)

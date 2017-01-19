@@ -22,11 +22,14 @@ func main() {
 	userInfoStore := store.NewUserInfoStore()
 
 	userController := controller.NewUserController(userInfoStore, userStore)
+	workerController := controller.NewWorkerController(userInfoStore, userStore)
 
 	userRouter := bm.NewDataRouter()
 	workerRouter := bm.NewDataRouter()
 
 	userRouter.SetDefaultHandler(userController.ToWorker)
+
+	workerRouter.Register("to_users", workerController.ToUsers)
 
 	hub = gate.NewHub(userRouter, workerRouter, workerStore, userStore, userInfoStore)
 
