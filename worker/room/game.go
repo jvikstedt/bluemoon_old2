@@ -39,13 +39,13 @@ func (r *Game) Type() string {
 }
 
 func (r *Game) Run() {
-	tickChan := time.NewTicker(time.Millisecond * 100).C
+	tickChan := time.NewTicker(time.Millisecond * 33).C
 
 	last := time.Now()
 	for r.running {
 		select {
 		case <-tickChan:
-			delta := time.Since(last).Seconds() + 1
+			delta := time.Since(last).Seconds() * 10
 			last = time.Now()
 
 			for _, v := range r.entities {
