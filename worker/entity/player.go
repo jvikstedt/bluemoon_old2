@@ -20,10 +20,17 @@ func NewPlayerEntity(id, x, y, xdir, ydir int, speed float64) *PlayerEntity {
 	}
 }
 
-func (pe *PlayerEntity) Update(delta float64) (bool, error) {
+func (pe *PlayerEntity) Update(delta float64) (changed bool, err error) {
+	oldX := pe.x
+	oldY := pe.y
+
 	pe.x = pe.x + int(float64(pe.xDir)*pe.speed*delta)
 	pe.y = pe.y + int(float64(pe.yDir)*pe.speed*delta)
-	return true, nil
+
+	if oldX != pe.x || oldY != pe.y {
+		changed = true
+	}
+	return
 }
 
 func (pe *PlayerEntity) ID() int {

@@ -13,6 +13,9 @@ function animate() {
   renderer.render(stage);
 }
 
+var xDir = 0;
+var yDir = 0;
+
 var players = {};
 function newPlayer(id, x, y) {
   var bunny = new PIXI.Sprite(texture);
@@ -65,16 +68,37 @@ ws.onclose = function() {
 };
 
 function onKeyUp(key) {
-  if (key.keyCode === 38) {
+  if (key.keyCode === 38 && yDir == -1) {
+    yDir = 0;
+    ws.send(`{"name": "change_dir", "payload": {"axis": "y", "val": 0}}\n`);
+  } else if (key.keyCode === 40 && yDir == 1) {
+    yDir = 0;
+    ws.send(`{"name": "change_dir", "payload": {"axis": "y", "val": 0}}\n`);
+  } else if (key.keyCode === 37 && xDir == -1) {
+    xDir = 0;
+    ws.send(`{"name": "change_dir", "payload": {"axis": "x", "val": 0}}\n`);
+  } else if (key.keyCode === 39 && xDir == 1) {
+    xDir = 0;
+    ws.send(`{"name": "change_dir", "payload": {"axis": "x", "val": 0}}\n`);
+  }
+}
+
+function onKeyDown(key) {
+  if (key.keyCode === 38 && yDir != -1) {
+    yDir = -1;
     ws.send(`{"name": "change_dir", "payload": {"axis": "y", "val": -1}}\n`);
-  } else if (key.keyCode === 40) {
+  } else if (key.keyCode === 40 && yDir != 1) {
+    yDir = 1;
     ws.send(`{"name": "change_dir", "payload": {"axis": "y", "val": 1}}\n`);
-  } else if (key.keyCode === 37) {
+  } else if (key.keyCode === 37 && xDir != -1) {
+    xDir = -1;
     ws.send(`{"name": "change_dir", "payload": {"axis": "x", "val": -1}}\n`);
-  } else if (key.keyCode === 39) {
+  } else if (key.keyCode === 39 && xDir != 1) {
+    xDir = 1;
     ws.send(`{"name": "change_dir", "payload": {"axis": "x", "val": 1}}\n`);
   }
 }
 
 document.addEventListener('keyup', onKeyUp);
+document.addEventListener('keydown', onKeyDown);
 animate();

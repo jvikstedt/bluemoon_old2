@@ -51,8 +51,5 @@ func (uc *UserController) ToWorker(client bm.Client, data []byte) {
 	}
 	bytes = append(bytes, '\n')
 
-	fmt.Println("to worker")
-	fmt.Println(string(bytes))
-
 	worker.Write(bytes)
 }
