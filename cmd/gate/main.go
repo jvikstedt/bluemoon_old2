@@ -3,6 +3,7 @@ package main
 import (
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/websocket"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/jvikstedt/bluemoon/gate"
 	"github.com/jvikstedt/bluemoon/gate/controller"
 	"github.com/jvikstedt/bluemoon/gate/store"
+	"github.com/jvikstedt/bluemoon/logger"
 	"github.com/jvikstedt/bluemoon/net/socket"
 	"github.com/jvikstedt/bluemoon/net/ws"
 )
@@ -17,6 +19,8 @@ import (
 var hub *gate.Hub
 
 func main() {
+	log := logger.NewLogrusLogger(os.Stdout, logger.DebugLevel)
+
 	workerStore := store.NewClientStore()
 	userStore := store.NewClientStore()
 	userInfoStore := store.NewUserInfoStore()
@@ -31,7 +35,7 @@ func main() {
 
 	workerRouter.Register("to_users", workerController.ToUsers)
 
-	hub = gate.NewHub(userRouter, workerRouter, workerStore, userStore, userInfoStore)
+	hub = gate.NewHub(log, userRouter, workerRouter, workerStore, userStore, userInfoStore)
 
 	sServer := socket.NewServer(manageConn)
 	go sServer.Listen(":5000")

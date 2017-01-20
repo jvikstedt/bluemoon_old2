@@ -8,6 +8,7 @@ import (
 )
 
 type Hub struct {
+	logger        bm.Logger
 	userRouter    *bm.DataRouter
 	workerRouter  *bm.DataRouter
 	workerStore   ClientStore
@@ -15,8 +16,9 @@ type Hub struct {
 	userInfoStore UserInfoStore
 }
 
-func NewHub(userRouter *bm.DataRouter, workerRouter *bm.DataRouter, ws ClientStore, us ClientStore, uis UserInfoStore) *Hub {
+func NewHub(logger bm.Logger, userRouter *bm.DataRouter, workerRouter *bm.DataRouter, ws ClientStore, us ClientStore, uis UserInfoStore) *Hub {
 	return &Hub{
+		logger:        logger,
 		userRouter:    userRouter,
 		workerRouter:  workerRouter,
 		workerStore:   ws,
@@ -29,17 +31,18 @@ var idgen = bm.NewIDGen()
 
 func (h *Hub) ManageWorkerConn(rw bm.ReadWriter) error {
 	w := bm.NewBaseClient(idgen.Next(), rw, func(client bm.Client, data []byte) {
-		fmt.Printf("New message from worker: %d\n", client.ID())
-		fmt.Print(string(data))
+		h.logger.Debugln(fmt.Sprintf("New message from worker: %d\n", client.ID()))
+		h.logger.Debugln(string(data))
+
 		var workerIn WorkerIn
 		err := json.Unmarshal(data, &workerIn)
 		if err != nil {
-			fmt.Println(err)
+			h.logger.Warnln(err)
 			return
 		}
 		handle, err := h.workerRouter.Handler(workerIn.Name)
 		if err != nil {
-			fmt.Println(err)
+			h.logger.Warnln(err)
 			return
 		}
 		handle(client, *workerIn.Payload)
@@ -62,6 +65,7 @@ func (h *Hub) buildUserInfo(client bm.Client, worker bm.Client) {
 func (h *Hub) userQuit(client bm.Client) {
 	userInfo, err := h.userInfoStore.ByID(client.ID())
 	if err != nil {
+		h.logger.Warnln(err)
 		return
 	}
 	worker := userInfo.Worker()
@@ -72,12 +76,12 @@ func (h *Hub) userQuit(client bm.Client) {
 
 func (h *Hub) ManageUserConn(rw bm.ReadWriter) error {
 	u := bm.NewBaseClient(idgen.Next(), rw, func(client bm.Client, data []byte) {
-		fmt.Printf("New message from user: %d\n", client.ID())
-		fmt.Print(string(data))
+		h.logger.Debugln(fmt.Sprintf("New message from user: %d\n", client.ID()))
+		h.logger.Debugln(string(data))
 		var userIn UserIn
 		err := json.Unmarshal(data, &userIn)
 		if err != nil {
-			fmt.Println(err)
+			h.logger.Warnln(err)
 			return
 		}
 		handle, err := h.userRouter.Handler(userIn.Name)
