@@ -25,7 +25,7 @@ func (uj *UserJoined) Execute(r worker.Room) error {
 			ID   int    `json:"id"`
 			X    int    `json:"x"`
 			Y    int    `json:"y"`
-		}{"new_player", v.ID(), v.X(), v.Y()})
+		}{"new_" + v.Type(), v.ID(), v.X(), v.Y()})
 	}
 	return nil
 }

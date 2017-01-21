@@ -9,6 +9,7 @@ import (
 	"github.com/jvikstedt/bluemoon/logger"
 	"github.com/jvikstedt/bluemoon/net/socket"
 	"github.com/jvikstedt/bluemoon/worker"
+	"github.com/jvikstedt/bluemoon/worker/action"
 	"github.com/jvikstedt/bluemoon/worker/controller"
 	"github.com/jvikstedt/bluemoon/worker/room"
 )
@@ -27,6 +28,7 @@ func main() {
 
 	hub := worker.NewHub(nil)
 	room := room.NewGame(log, 1, hub)
+	room.AddAction(&action.AppleAction{})
 
 	userController := controller.NewUserController(hub, room)
 

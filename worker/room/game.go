@@ -16,6 +16,8 @@ type Game struct {
 	entities map[int]worker.Entity
 	eventCh  chan worker.Event
 	users    map[int]*worker.User
+	actions  []worker.Action
+	actionCh chan worker.Action
 }
 
 func NewGame(log bm.Logger, id int, hub *worker.Hub) *Game {
@@ -27,6 +29,8 @@ func NewGame(log bm.Logger, id int, hub *worker.Hub) *Game {
 		entities: make(map[int]worker.Entity),
 		eventCh:  make(chan worker.Event, 20),
 		users:    make(map[int]*worker.User),
+		actions:  []worker.Action{},
+		actionCh: make(chan worker.Action, 20),
 	}
 }
 
@@ -45,11 +49,15 @@ func (r *Game) Run() {
 	for r.running {
 		select {
 		case <-tickChan:
-			delta := time.Since(last).Seconds() * 10
+			delta := time.Since(last).Seconds()
 			last = time.Now()
 
+			for _, v := range r.actions {
+				v.Run(r, delta)
+			}
+
 			for _, v := range r.entities {
-				changed, err := v.Update(delta)
+				changed, err := v.Update(delta * 10)
 				if err != nil {
 					r.log.Warnln(fmt.Sprintf("Error while executing a entity Update: %s", err.Error()))
 				}
@@ -67,6 +75,8 @@ func (r *Game) Run() {
 			if err != nil {
 				r.log.Warnln(fmt.Sprintf("Error while executing a event: %s", err.Error()))
 			}
+		case a := <-r.actionCh:
+			r.actions = append(r.actions, a)
 		}
 	}
 }
@@ -88,6 +98,10 @@ func (r *Game) BroadcastTo(userIds []int, payload interface{}) {
 
 func (r *Game) AddEvent(e worker.Event) {
 	r.eventCh <- e
+}
+
+func (r *Game) AddAction(a worker.Action) {
+	r.actionCh <- a
 }
 
 func (r *Game) AddEntity(e worker.Entity) {

@@ -52,3 +52,7 @@ func (pe *PlayerEntity) SetXDir(dir int) {
 func (pe *PlayerEntity) SetYDir(dir int) {
 	pe.yDir = dir
 }
+
+func (pe *PlayerEntity) Type() string {
+	return "player"
+}

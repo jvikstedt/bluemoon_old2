@@ -4,6 +4,7 @@ document.body.appendChild(renderer.view);
 var stage = new PIXI.Container();
 var container = new PIXI.Container();
 var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/required/assets/basics/bunny.png');
+var appleTexture = PIXI.Texture.fromImage('https://cdn0.iconfinder.com/data/icons/glyph_set/128/apple.png');
 
 stage.addChild(container);
 
@@ -17,6 +18,7 @@ var xDir = 0;
 var yDir = 0;
 
 var players = {};
+var apples = {};
 function newPlayer(id, x, y) {
   var bunny = new PIXI.Sprite(texture);
 
@@ -29,6 +31,23 @@ function newPlayer(id, x, y) {
   players[id] = bunny;
 
   container.addChild(bunny);
+}
+
+function newApple(id, x, y) {
+  var apple = new PIXI.Sprite(appleTexture);
+
+  apple.anchor.x = 0.5;
+  apple.anchor.y = 0.5;
+
+  apple.width = 20;
+  apple.height = 20;
+
+  apple.position.x = x;
+  apple.position.y = y;
+
+  apples[id] = apple;
+
+  container.addChild(apple);
 }
 
 function removePlayer(id) {
@@ -58,6 +77,9 @@ ws.onmessage = function (evt) {
       removePlayer(obj.id);
     case "move":
       move(obj.id, obj.x, obj.y);
+      break;
+    case "new_apple":
+      newApple(obj.id, obj.x, obj.y);
       break;
     default:
       console.log("not found handler: " + obj.name);

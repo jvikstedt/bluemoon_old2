@@ -5,6 +5,7 @@ type Entity interface {
 	ID() int
 	X() int
 	Y() int
+	Type() string
 }
 
 type Room interface {
